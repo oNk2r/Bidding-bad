@@ -1,139 +1,103 @@
-# Bidding Bad ⚽
+# Bidding Bad
 
-A premier competitive football management and live auction bot for Discord. Assemble your dream 5-player squad through real-time bidding wars, build chemistry synergies, upgrade your club stadium, trade cards on the open market, and duel other managers in 90-minute simulated matches.
-
----
-
-## 🌟 Key Features
-
-- **Squad Building Challenges (SBCs)**: Solve tactical squad puzzles (`/sbc`) by exchanging unwanted cards for coin bounties, booster packs, and exclusive 95 OVR Icon Legends.
-- **Division Rivals & Ranked Seasons**: Climb the competitive ladder across 5 tiers (`/division`) from Grassroots (Bronze) to Elite Masters, earn win streak bonuses, and claim lucrative weekly season rewards.
-- **Live Fast-Paced Auctions**: Real-time bidding timers with interactive button controls (`+$1`, `+$5`, `Pass`, `My Squad`).
-- **Tactical Squad Building**: Draft a balanced 5-player squad (1 GK, 1-2 DEF, 1-2 MID, 1-2 FW) with reserve budget rules.
-- **Dynamic Chemistry & Synergies**: Gain score bonuses by pairing players from the same real-world club (+3.0 pts per link tier) or nation (+2.0 pts per link tier).
-- **Match Simulation Engine**: Challenge rivals or the AI in simulated 90-minute matches driven by squad ratings, chemistry modifiers, and stadium morale buffs.
-- **Club Infrastructure & Stadiums**: Expand your home venue across 5 tiers (from Community Ground to Galactic Megastructure) to boost ticket revenue and matchday advantage.
-- **Card Economy & Marketplace**: Open daily packs, claim scout airdrops, trade directly with other managers, or list cards on the server market.
-- **Manager Profiles & Records**: Track career win rate, total spend, most signed players, tactical archetypes, and global leaderboard rankings.
+A competitive football management and live auction bot for Discord. Draft 5-player squads through real-time bidding, build tactical chemistry, trade cards on the transfer market, customize club branding, and compete in simulated 90-minute matches and division ladders.
 
 ---
 
-## 🛠️ Production Tech Stack
+## Features
 
-1. **Runtime & Language**:
-   - Node.js 20+ / ES2022 / NodeNext ESM
-   - TypeScript 5.7+
-   - `tsx` for high-performance development and scripting
-
-2. **Discord API**:
-   - `discord.js` v14.18+ (Discord API v10)
-   - Slash Commands with rich autocomplete
-   - Interactive Buttons, Select Menus, and ActionRows
-
-3. **Database & Persistence**:
-   - `Prisma ORM` 6+
-   - SQLite for local dev (`dev.db`) / PostgreSQL compatibility for production
-   - Atomic `prisma.$transaction` wrappers across all economy, auction, and trading operations
-
-4. **Validation & Testing**:
-   - `Zod` environment validation at application startup
-   - `Vitest` automated test suite
+- **Live Fast-Paced Auctions**: Real-time bidding timers with interactive button controls (`/auction`).
+- **Tactical Squad Building**: Draft and manage a 5-player lineup with chemistry bonuses for shared clubs and nations.
+- **Club Management & Custom Banners**: Customize your club name, tactic, kit, stadium tier, and upload animated or static club banners (`/club`, `/club banner`).
+- **Match Simulation & Penalties**: Play 90-minute simulated matches against managers or AI (`/match`) and 1v1 penalty shootouts (`/penalty`).
+- **Division Rivals & Leaderboards**: Compete across rank tiers from Bronze to Elite Masters (`/division`, `/leaderboard`).
+- **Card Economy & Marketplace**: Open packs, claim daily rewards, list cards on the transfer market, and trade with other players (`/market`, `/trade`, `/pack`).
+- **Squad Building Challenges (SBCs)**: Exchange cards to solve squad puzzles and unlock rewards (`/sbc`).
+- **Tournaments**: Host multi-player knockout cups and round-robin tournaments (`/tournament`).
 
 ---
 
-## 📁 Project Structure
+## Tech Stack
+
+- **Runtime**: Node.js 20+ (ESM)
+- **Language**: TypeScript 5.7+
+- **Framework**: Discord.js v14
+- **Database**: PostgreSQL with Prisma ORM
+- **Validation & Testing**: Zod, Vitest
+
+---
+
+## Project Structure
 
 ```
 src/
-├── commands/             # Modular Discord slash command definitions
-│   ├── auction/          # /auction, /join, /start, /bid, /pass, /squad, /auction_cancel
-│   ├── club/             # /club, /lineup, /tactic, /captain, /drop, /renameclub, /kit, /motto
-│   ├── economy/          # /daily, /pack, /balance, /inventory, /trade
-│   ├── game/             # /game, /match, /penalty, /spin
-│   ├── market/           # /market, /buy, /sell, /quicksell, /cancel_listing, /dailyshop
-│   ├── rivals/           # /division, /leaderboard, /profile
-│   ├── sbc/              # /sbc
-│   ├── stadium/          # /stadium
-│   ├── tournament/       # /tournament
-│   └── utility/          # /help, /hello, /sync
-├── config/               # Environment config (Zod) & Game constants
-│   ├── env.ts            # Runtime environment validation
-│   └── constants.ts      # Game rules, timers, and catalogs
-├── database/             # Prisma client singleton
-│   └── client.ts         # Singleton client export with disconnect handlers
-├── events/               # Discord client event listeners
-│   ├── ready.ts          # onReady presence & slash command sync
-│   └── interactionCreate.ts # Slash command, autocomplete & component router
-├── jobs/                 # Timers and background jobs
-│   ├── auctionTimer.ts   # Guild live auction countdowns & sold/pass workflows
-│   └── scheduledTasks.ts # Background heartbeat and maintenance
-├── models/               # Pure domain models and rule engines
-│   ├── auction.ts        # Live auction state & pot generation
-│   ├── divisions.ts      # Division tiers & RP calculations
-│   ├── manager.ts        # Manager profile, archetypes, and roles
-│   ├── match.ts          # 90-min match engine & timeline events
-│   ├── penalty.ts        # 1v1 penalty shootout state
-│   ├── player.ts         # Player entity & tier valuations
-│   ├── sbc.ts            # SBC challenge definition & requirement validator
-│   ├── scoring.ts        # Chemistry links & transparent squad scoring
-│   ├── spin.ts           # Mystery wheel weighted sectors
-│   ├── squad.ts          # 5-player squad constraints (1 GK, 1 Flex)
-│   ├── stadium.ts        # 5 Stadium infrastructure tiers
-│   └── tactics.ts        # 6 Tactical playstyles & counter matrix
-├── services/             # Pure game & business logic with Prisma transactions
-│   ├── auctionService.ts     # Live multi-guild auction room management
-│   ├── divisionService.ts    # Division Rivals ladder & leaderboards
-│   ├── economyService.ts     # Coins, packs, inventory, drops, stadium ($transaction)
-│   ├── managerRoleService.ts # Dynamic badge and role assignments
-│   ├── marketService.ts      # P2P marketplace listing & purchases ($transaction)
-│   ├── matchService.ts       # Match simulation, RP recording, and rewards
-│   ├── playerService.ts      # 18,400+ player dataset loader & queries
-│   ├── profileService.ts     # Manager stats, branding, and tactical identity
-│   ├── rewardService.ts      # Centralized claim workflows
-│   ├── sbcService.ts         # SBC puzzle submissions and card burning ($transaction)
-│   ├── squadService.ts       # Lineup composition & chemistry evaluation
-│   └── tournamentService.ts  # 3-way Round Robin & 4/8-way Knockout cups
-├── ui/                   # Color-coded Discord embeds and interactive buttons
-│   ├── embeds/           # Rich EmbedBuilders for all game systems
-│   └── components/       # ActionRows, Buttons, StringSelectMenus, Modals
-├── utils/                # Discord helpers, string formatters, and ID helpers
-│   ├── discord.ts        # Safe message senders & mention resolvers
-│   ├── formatters.ts     # Currency, progress bars, time remaining
-│   └── id.ts             # Custom ID parser and generator
-└── index.ts              # Application bootstrap & graceful shutdown
+├── commands/          # Slash command definitions (auction, club, economy, game, market, rivals, sbc, stadium, tournament)
+├── config/            # Environment validation (Zod) and game constants
+├── database/          # Prisma database client singleton and heartbeat
+├── events/            # Discord event handlers (ready, interactionCreate)
+├── jobs/              # Background auction timers and maintenance tasks
+├── models/            # Domain models (scoring, chemistry, tactics, penalties)
+├── services/          # Core business logic and database transaction services
+├── ui/                # Discord embeds, buttons, select menus, and modals
+├── utils/             # Helpers, formatters, and media resolvers
+└── index.ts           # Application entry point
 ```
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### 1. Prerequisites
-- **Node.js**: `v20.0.0` or higher
-- **npm**: `v10.0.0` or higher
+- Node.js 20.0.0 or higher
+- PostgreSQL database (local or hosted like Neon / Supabase)
 
-### 2. Installation
-```powershell
+### 2. Environment Setup
+Create a `.env` file in the root directory (based on `.env.example`):
+
+```env
+DISCORD_TOKEN=your_discord_bot_token_here
+DATABASE_URL=postgresql://user:password@localhost:5432/biddingbad?sslmode=prefer
+NODE_ENV=development
+```
+
+### 3. Install Dependencies
+```bash
 npm install
 ```
 
-### 3. Database Setup
-```powershell
+### 4. Database Setup
+```bash
 npx prisma generate
 npx prisma db push
 ```
 
-### 4. Running the Bot
-- **Development Mode** (auto-reload on code change):
-  ```powershell
-  npm run dev
-  ```
-- **Production Mode**:
-  ```powershell
-  npm run build
-  npm start
-  ```
+### 5. Running the Bot
 
-### 5. Running Tests
-```powershell
+**Development Mode** (auto-reloads on file changes):
+```bash
+npm run dev
+```
+
+**Production Mode**:
+```bash
+npm run build
+npm start
+```
+
+### 6. Running Tests
+```bash
 npm test
 ```
+
+---
+
+## Deployment
+
+1. Set `DATABASE_URL`, `DISCORD_TOKEN`, and `NODE_ENV=production` in your hosting environment.
+2. Run database sync and build steps:
+   ```bash
+   npx prisma generate
+   npx prisma db push
+   npm run build
+   ```
+3. Start the process with `npm start` (or a process manager like PM2 / Docker).
