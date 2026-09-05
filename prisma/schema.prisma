@@ -1,0 +1,99 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id               String   @id // Discord User ID as string
+  name             String   @default("Manager")
+  coins            Int      @default(1000)
+  rating           Int      @default(1000)
+  matchesPlayed    Int      @default(0)
+  wins             Int      @default(0)
+  draws            Int      @default(0)
+  losses           Int      @default(0)
+  tournamentsWon   Int      @default(0)
+  rp               Int      @default(0) // Division Rivals Rank Points
+  clubName         String   @default("FC Bidding Bad")
+  kitEmoji         String   @default("🔴⚪")
+  motto            String?
+  bannerUrl        String?
+  tactic           String   @default("BALANCED")
+  captainCardId    String?
+  stadiumTier      Int      @default(1)
+  stadiumName      String?
+  lastDailyClaim   Float    @default(0)
+  dailyStreak      Int      @default(0)
+  lastDropClaim    Float    @default(0)
+  lastSpinClaim    Float    @default(0)
+  lastStadiumClaim Float    @default(0)
+  customRoles      String   @default("[]") // JSON string
+  startingLineup   String   @default("[]") // JSON string
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  cards            InventoryCard[]
+  listings         MarketListing[]
+  sbcCompletions   SbcCompletion[]
+
+  @@index([rating])
+  @@index([coins])
+  @@index([rp])
+}
+
+model InventoryCard {
+  id          String   @id @default(uuid())
+  userId      String
+  cardId      String
+  name        String
+  position    String   // GK, DEF, MID, FW
+  rating      Int
+  club        String
+  nation      String
+  value       Int
+  untradeable Boolean  @default(false)
+  isStarting5 Boolean  @default(false)
+  cardData    String?  // JSON string
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([cardId])
+}
+
+model MarketListing {
+  id         String   @id @default(uuid())
+  sellerId   String
+  sellerName String
+  price      Int
+  cardData   String   // JSON string
+  createdAt  DateTime @default(now())
+
+  seller     User     @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@index([sellerId])
+  @@index([price])
+}
+
+model GameRecord {
+  key       String   @id
+  value     String   // JSON string
+  updatedAt DateTime @updatedAt
+}
+
+model SbcCompletion {
+  id          String   @id @default(uuid())
+  userId      String
+  sbcId       String
+  completedAt DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, sbcId])
+  @@index([userId])
+}

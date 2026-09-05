@@ -1,0 +1,33 @@
+# Node.js dependencies & builds
+node_modules/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment & local files
+.env
+.env.local
+*.env
+
+# SQLite local database
+prisma/dev.db
+prisma/dev.db-journal
+*.db
+*.db-journal
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs & temp
+*.tmp
+*.log
+*.bak
+scratch*
+
+# Runtime user uploaded media
+data/banners/*
+!data/banners/.gitkeep
