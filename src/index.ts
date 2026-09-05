@@ -6,6 +6,7 @@ import { onReady } from "./events/ready.js";
 import { onInteractionCreate } from "./events/interactionCreate.js";
 import type { Command } from "./commands/types.js";
 
+import http from "node:http";
 import dns from "node:dns";
 dns.setDefaultResultOrder("ipv4first");
 
@@ -13,6 +14,23 @@ declare module "discord.js" {
   export interface Client {
     commands: Collection<string, Command>;
   }
+}
+
+/**
+ * Lightweight HTTP server for Render / cloud health checks & pingers
+ */
+function startHealthServer(): http.Server {
+  const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 8080;
+  const server = http.createServer((req, res) => {
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ status: "healthy", bot: "Bidding Bad", timestamp: new Date().toISOString() }));
+  });
+
+  server.listen(port, () => {
+    console.log(`🌐 Health check HTTP server listening on port ${port}`);
+  });
+
+  return server;
 }
 
 async function bootstrap(): Promise<void> {
@@ -55,9 +73,13 @@ async function bootstrap(): Promise<void> {
     console.error("⚠️ Uncaught Exception:", error);
   });
 
+  // Start lightweight HTTP health server for hosting platform checks
+  const healthServer = startHealthServer();
+
   // Graceful shutdown
   const handleShutdown = async (signal: string) => {
     console.log(`\n🛑 Received ${signal}. Shutting down gracefully...`);
+    healthServer.close();
     client.destroy();
     await disconnectPrisma();
     process.exit(0);
