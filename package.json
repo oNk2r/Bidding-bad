@@ -2,6 +2,7 @@
   "name": "bidding-bad",
   "version": "2.0.0",
   "description": "Production TypeScript Discord bot for football live bidding, match simulation, and card economy",
+  "license": "MIT",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {

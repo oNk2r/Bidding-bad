@@ -101,3 +101,9 @@ npm test
    npm run build
    ```
 3. Start the process with `npm start` (or a process manager like PM2 / Docker).
+
+---
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
