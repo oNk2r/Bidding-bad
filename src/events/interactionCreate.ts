@@ -300,22 +300,8 @@ export async function onInteractionCreate(interaction: Interaction): Promise<voi
       const homeSide = await matchService.buildClubMatchSide(challengerId);
       const awaySide = await matchService.buildClubMatchSide(opponentId, interaction.user.displayName);
 
-      const result = matchService.simulate(homeSide, awaySide, false);
-      const rpUpdate = await matchService.recordMatchOutcome(result);
-
-      const embed = createMatchResultEmbed(
-        result,
-        rpUpdate.homeRpDelta,
-        rpUpdate.awayRpDelta,
-        rpUpdate.homeNote,
-        rpUpdate.awayNote
-      );
-
-      await interaction.editReply({
-        content: `⚔️ **MATCH CONCLUDED!**`,
-        embeds: [embed],
-        components: [],
-      });
+      const { runLiveMatchSimulation } = await import("../commands/game/match.js");
+      await runLiveMatchSimulation(interaction, homeSide, awaySide);
       return;
     }
 
@@ -642,6 +628,36 @@ export async function onInteractionCreate(interaction: Interaction): Promise<voi
       await interaction.reply({
         content: `✅ Successfully saved your Starting 5 lineup! Check your club with \`/club\`.`,
         flags: MessageFlags.Ephemeral,
+      });
+      return;
+    }
+
+    if (interaction.customId === "lineup_select_manager") {
+      const managerCardId = interaction.values[0];
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+      const res = await economyService.setAssignedManager(interaction.user.id, managerCardId);
+      if (!res.success) {
+        await interaction.editReply({ content: res.message });
+        return;
+      }
+
+      await interaction.editReply({
+        content: `👔 **Head Coach Appointed!** **${res.managerCard?.name}** (\`${res.managerCard?.rating} MGR\`) is now directing your club! Check your club with \`/club\`.`,
+      });
+      return;
+    }
+
+    if (interaction.customId === "quicksell_multi_select") {
+      const cardIds = interaction.values;
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+      const res = await economyService.quicksellMultipleCards(interaction.user.id, cardIds);
+      if (!res.success) {
+        await interaction.editReply({ content: res.message });
+        return;
+      }
+
+      await interaction.editReply({
+        content: `💰 ${res.message}\n💳 **New Treasury Balance:** **${res.newBalance?.toLocaleString()} Coins**`,
       });
       return;
     }

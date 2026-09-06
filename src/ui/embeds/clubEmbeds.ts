@@ -12,6 +12,7 @@ export function createClubEmbed(params: {
   bannerUrl?: string | null;
   tacticName: string;
   captain?: InventoryCard | null;
+  managerCard?: InventoryCard | null;
   squad: Squad;
   coins: number;
   clubValue: number;
@@ -20,12 +21,21 @@ export function createClubEmbed(params: {
   const { totalBonus, synergies } = getChemistryBreakdown(params.squad);
   const score = calculateScore(params.squad);
 
+  const managerStr = params.managerCard
+    ? `👔 **${params.managerCard.name}** (\`${params.managerCard.rating} MGR\`) — *${params.managerCard.club}*`
+    : "*No Head Coach Appointed (Sign in `/dailyshop` or `/pack`)*";
+
+  const captainStr = params.captain
+    ? `⭐ **${params.captain.name}** (\`${params.captain.rating} ${params.captain.position}\`)`
+    : "*No Captain Appointed (Use `/captain`)*";
+
   const embed = new EmbedBuilder()
     .setTitle(`${params.kitEmoji} ${params.clubName}`)
     .setDescription(
       (params.motto ? `*\"${params.motto}\"*\n` : "") +
-        `**Manager:** ${params.userName} • **Tactics:** \`${params.tacticName}\`\n` +
-        `**Captain:** ${params.captain ? `⭐ **${params.captain.name}** (${params.captain.rating} ${params.captain.position})` : "*No Captain Appointed*"}`
+        `**Owner:** ${params.userName} • **Tactics:** \`${params.tacticName}\`\n` +
+        `**Head Coach:** ${managerStr}\n` +
+        `**Club Captain:** ${captainStr}`
     )
     .setColor(0x3b82f6)
     .addFields(
@@ -48,7 +58,7 @@ export function createClubEmbed(params: {
         inline: false,
       }
     )
-    .setFooter({ text: "Use /banner to set animated GIF banner • /lineup for squad" });
+    .setFooter({ text: "Use /lineup to configure Starting 5 & Head Coach • /tactic for playstyle" });
 
   return embed;
 }

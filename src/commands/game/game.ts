@@ -28,7 +28,7 @@ export const gameCommand: Command = {
           `• 🎡 **/spin** — Spin the mystery wheel for coins & star cards\n` +
           `• 🎯 **/penalty** — 1v1 Penalty Shootout with coin wagers\n` +
           `• 🧩 **/sbc** — Solve Squad Building puzzles for Icons\n` +
-          `• ⚔️ **/match** — Live 90-min duel vs AI Bot or manager\n` +
+          `• ⚔️ **/match** — Live 90-min head-to-head duel vs another manager\n` +
           `• 🏆 **/tournament** — Compete in server knockout cups`
       )
       .setColor(0x8b5cf6);

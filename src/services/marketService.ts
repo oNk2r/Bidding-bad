@@ -1,6 +1,6 @@
 import { prisma } from "../database/client.js";
 import { economyService } from "./economyService.js";
-import type { Position } from "../config/constants.js";
+import { MAX_INVENTORY_CARDS, type Position } from "../config/constants.js";
 import type { MarketListing } from "@prisma/client";
 
 export interface ListedCardData {
@@ -107,6 +107,14 @@ export class MarketService {
         return {
           success: false,
           message: `❌ Insufficient coins! Listing costs **${listing.price.toLocaleString()} Coins** (You have: **${buyer.coins.toLocaleString()} Coins**).`,
+        };
+      }
+
+      const buyerCardCount = await tx.inventoryCard.count({ where: { userId: buyerId } });
+      if (buyerCardCount >= MAX_INVENTORY_CARDS) {
+        return {
+          success: false,
+          message: `❌ Inventory limit reached (**${buyerCardCount}/${MAX_INVENTORY_CARDS} cards**)! Please \`/quicksell\` or \`/sell\` cards before purchasing more from the Transfer Market.`,
         };
       }
 

@@ -29,21 +29,21 @@ export function getChemistryBreakdown(squad: Squad): ChemistryResult {
   const synergies: string[] = [];
   let totalBonus = 0.0;
 
-  // Club synergies (+3.0 pts for 2+ players from same club)
+  // Club synergies (+1.0 pts for each additional player from same club)
   const sortedClubs = Object.entries(clubCounts).sort((a, b) => b[1] - a[1]);
   for (const [club, count] of sortedClubs) {
     if (count >= 2) {
-      const bonus = 3.0 * (count - 1);
+      const bonus = 1.0 * (count - 1);
       totalBonus += bonus;
       synergies.push(`🏰 **${club} Link** (${count} players) ➔ **+${bonus.toFixed(1)} pts**`);
     }
   }
 
-  // Nation synergies (+2.0 pts for 2+ players from same nation)
+  // Nation synergies (+0.5 pts for each additional player from same nation)
   const sortedNations = Object.entries(nationCounts).sort((a, b) => b[1] - a[1]);
   for (const [nation, count] of sortedNations) {
     if (count >= 2) {
-      const bonus = 2.0 * (count - 1);
+      const bonus = 0.5 * (count - 1);
       totalBonus += bonus;
       synergies.push(`🏳️ **${nation} Link** (${count} players) ➔ **+${bonus.toFixed(1)} pts**`);
     }
@@ -64,16 +64,13 @@ export function calculateScore(squad: Squad): number {
   const totalRating = squad.players.reduce((sum, p) => sum + p.rating, 0);
   const averageRating = totalRating / squad.players.length;
 
-  // Star player bonus: +1.0 for each player rated 90 or higher
-  const starBonus = squad.players.filter((p) => p.rating >= 90).length * 1.0;
-
-  // Structure completion bonus for building a valid 5-player squad
-  const structureBonus = 5.0;
+  // Star player bonus: +0.2 for each player rated 90 or higher
+  const starBonus = squad.players.filter((p) => p.rating >= 90).length * 0.2;
 
   // Chemistry synergy bonuses
   const { totalBonus: chemBonus } = getChemistryBreakdown(squad);
 
-  const totalScore = averageRating + starBonus + structureBonus + chemBonus;
+  const totalScore = averageRating + starBonus + chemBonus;
 
-  return Math.round(Math.min(100.0, totalScore) * 100) / 100;
+  return Math.round(Math.min(99.0, totalScore) * 10) / 10;
 }

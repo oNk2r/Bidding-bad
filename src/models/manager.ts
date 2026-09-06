@@ -37,8 +37,6 @@ export interface ManagerProfile {
   playersSigned: number;
   totalSpent: number;
   roles: string[];
-  archetypeTitle: string | null;
-  archetypeDesc: string | null;
   coins: number;
   cardsOwned: number;
   clubValue: number;
@@ -109,76 +107,4 @@ export function calculateManagerRating(
   const perfMod = avgScore > 0 ? Math.floor((avgScore - 88.0) * 8) : 0;
   const rating = baseRating + wPts + dPts - lPts + perfMod;
   return Math.max(800, rating);
-}
-
-export function determineArchetype(
-  stats: ManagerStatsData
-): { title: string; desc: string } | null {
-  const matches = stats.matchesPlayed || 0;
-  if (matches < 2) return null;
-
-  const totalSpent = stats.totalSpent || 0;
-  const playersSigned = stats.playersSigned || 0;
-  const avgSpentPerPlayer = totalSpent / Math.max(1, playersSigned);
-
-  const positions = stats.positionCounts || {};
-  const totalPos = Object.values(positions).reduce((a, b) => a + b, 0) || 1;
-
-  const midRatio = (positions.MID || 0) / totalPos;
-  const defGkRatio = ((positions.DEF || 0) + (positions.GK || 0)) / totalPos;
-
-  const ratingsList = stats.signedRatings || [];
-  const avgRating =
-    ratingsList.length > 0
-      ? ratingsList.reduce((a, b) => a + b, 0) / ratingsList.length
-      : 88.0;
-
-  const recordSigning = stats.mostExpensiveSigning;
-  const recordPrice = recordSigning ? recordSigning.price : 0;
-
-  // 1. The Galáctico
-  if (avgRating >= 89.5 && recordPrice >= 18) {
-    return {
-      title: "THE GALÁCTICO",
-      desc: "Obsessed with elite superstar names regardless of price tag.",
-    };
-  }
-
-  // 2. The Bargain Hunter
-  if (avgSpentPerPlayer <= 5.0 && (stats.wins || 0) >= 1) {
-    return {
-      title: "THE BARGAIN HUNTER",
-      desc: "Rarely overpays and consistently finds value in the market.",
-    };
-  }
-
-  // 3. The Midfield Merchant
-  if (midRatio >= 0.35) {
-    return {
-      title: "THE MIDFIELD MERCHANT",
-      desc: "Controls the tempo by stockpiling elite midfielders.",
-    };
-  }
-
-  // 4. The Defensive Wall
-  if (defGkRatio >= 0.45) {
-    return {
-      title: "THE DEFENSIVE WALL",
-      desc: "Prioritizes a rock-solid backline and clean sheets.",
-    };
-  }
-
-  // 5. The Big Spender
-  if (totalSpent / matches >= 40.0) {
-    return {
-      title: "THE BIG SPENDER",
-      desc: "Dominates the auction room with deep pockets and aggressive bids.",
-    };
-  }
-
-  // 6. Default
-  return {
-    title: "THE TACTICIAN",
-    desc: "Values balanced squad composition and disciplined market timing.",
-  };
 }

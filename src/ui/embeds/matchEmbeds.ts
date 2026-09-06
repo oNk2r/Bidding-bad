@@ -34,17 +34,21 @@ export function createLiveMatchEmbed(
       ? "🏁 FULL TIME"
       : `⏱️ LIVE: ${currentMinute}'`;
 
-  const recentEvents = eventsSoFar.slice(-4).map((e) => e.commentary);
+  const recentEvents = eventsSoFar.slice(-5).map((e) => e.commentary);
+
+  const homeCoach = home.headCoach ? `👔 *${home.headCoach}*` : `👤 *${home.managerName}*`;
+  const awayCoach = away.headCoach ? `👔 *${away.headCoach}*` : `👤 *${away.managerName}*`;
 
   return new EmbedBuilder()
     .setTitle(`⚽ ${home.kitEmoji} ${home.clubName} ${homeScore} - ${awayScore} ${away.kitEmoji} ${away.clubName}`)
     .setDescription(
-      `**Status:** \`${statusText}\`\n\n` +
-        `**Match Timeline:**\n` +
-        (recentEvents.length > 0 ? recentEvents.join("\n") : "*Kickoff! Ball in play.*")
+      `**Status:** \`${statusText}\`\n` +
+      `**Benches:** ${homeCoach} vs ${awayCoach}\n\n` +
+      `**Match Timeline:**\n` +
+      (recentEvents.length > 0 ? recentEvents.join("\n") : "*Kickoff whistle blown! Ball in play.*")
     )
     .setColor(isHalfTime ? 0xf59e0b : 0x22c55e)
-    .setFooter({ text: "Simulated live with tactical momentum and player attributes" });
+    .setFooter({ text: "Simulated live with tactical momentum and head coach influence" });
 }
 
 export function createMatchResultEmbed(
@@ -59,7 +63,7 @@ export function createMatchResultEmbed(
     title += ` (Penalties: ${result.penaltyHomeScore}-${result.penaltyAwayScore})`;
   }
 
-  let winnerSummary = "🤝 **Match Drawn!** Both teams share the spoils.";
+  let winnerSummary = "🤝 **Match Drawn!** Both teams share the points.";
   if (result.winner === result.home) {
     winnerSummary = `🏆 **Victory for ${result.home.clubName}!** (+${result.homeReward} Coins)`;
   } else if (result.winner === result.away) {
@@ -67,6 +71,7 @@ export function createMatchResultEmbed(
   }
 
   const allEventLines = result.events.map((e) => e.commentary);
+  const stats = result.stats;
 
   const embed = new EmbedBuilder()
     .setTitle(title)
@@ -74,10 +79,21 @@ export function createMatchResultEmbed(
       `${winnerSummary}\n\n` +
         `⭐ **Player of the Match:** **${result.mvp}**\n` +
         `🧠 **Tactical Breakdown:** ${result.tacticalSummary}\n\n` +
-        `**Full Match Highlights:**\n` +
+        `**Match Commentary Highlights:**\n` +
         (allEventLines.length > 0 ? allEventLines.join("\n") : "*No major goalmouth incidents.*")
     )
     .setColor(result.winner ? 0x22c55e : 0x3b82f6);
+
+  if (stats) {
+    embed.addFields({
+      name: "📊 Match Statistics",
+      value:
+        `• **Possession:** ${result.home.clubName} **${stats.homePossession}%** - **${stats.awayPossession}%** ${result.away.clubName}\n` +
+        `• **Total Shots:** **${stats.homeShots}** - **${stats.awayShots}** (On Target: ${stats.homeShotsOnTarget} - ${stats.awayShotsOnTarget})\n` +
+        `• **Corners & Fouls:** Corners: ${stats.homeCorners}-${stats.awayCorners} • Fouls: ${stats.homeFouls}-${stats.awayFouls}`,
+      inline: false,
+    });
+  }
 
   if (homeRpDelta !== undefined || awayRpDelta !== undefined) {
     embed.addFields({
@@ -85,6 +101,7 @@ export function createMatchResultEmbed(
       value:
         `• **${result.home.managerName}**: ${homeNote || `${homeRpDelta} RP`}\n` +
         (!result.away.isBot ? `• **${result.away.managerName}**: ${awayNote || `${awayRpDelta} RP`}` : ""),
+      inline: false,
     });
   }
 

@@ -6,6 +6,7 @@ export const SQUAD_SIZE = 5;
 export const MIN_PLAYERS = 2;
 export const MAX_PLAYERS = 8;
 export const POT_SIZE = 14;
+export const MAX_INVENTORY_CARDS = 50;
 
 export const CORE_POSITIONS = ["GK", "DEF", "MID", "FW"] as const;
 export const FLEX_POSITIONS = ["DEF", "MID", "FW"] as const;

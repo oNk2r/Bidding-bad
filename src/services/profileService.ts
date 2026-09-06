@@ -3,7 +3,6 @@ import { economyService } from "./economyService.js";
 import { managerRoleService } from "./managerRoleService.js";
 import {
   calculateManagerRating,
-  determineArchetype,
   type ManagerProfile,
   type ManagerStatsData,
 } from "../models/manager.js";
@@ -39,7 +38,6 @@ export class ProfileService {
     };
 
     const roles = managerRoleService.getRolesForUser(statsData);
-    const archetype = determineArchetype(statsData);
     const rating = calculateManagerRating(wins, draws, losses, 88.0, matches);
 
     return {
@@ -58,9 +56,6 @@ export class ProfileService {
       playersSigned: inventory.length,
       totalSpent: inventory.reduce((sum, c) => sum + c.value, 0),
       roles,
-      archetypeTitle: archetype?.title || "THE TACTICIAN",
-      archetypeDesc:
-        archetype?.desc || "Values balanced squad composition and disciplined market timing.",
       coins: user.coins,
       cardsOwned: inventory.length,
       clubValue,

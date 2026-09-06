@@ -55,7 +55,7 @@ export function createInventoryEmbed(
   const embed = new EmbedBuilder()
     .setTitle(`🃏 ${userName}'s Card Inventory`)
     .setDescription(
-      `**Total Cards:** ${total} • **Club Valuation:** 💎 **${totalValuation.toLocaleString()} Coins**\n` +
+      `**Total Cards:** ${total}/50 • **Club Valuation:** 💎 **${totalValuation.toLocaleString()} Coins**\n` +
         `Page **${page}/${totalPages}**\n\n` +
         `*Use \`/quicksell\` to liquidate cards for coins or \`/sell\` to list on market.*`
     )

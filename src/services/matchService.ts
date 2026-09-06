@@ -103,6 +103,8 @@ export class MatchService {
     const user = await economyService.ensureUser(userId, userName);
     const squad = await economyService.buildMatchSquad(userId);
     const stadium = await economyService.getStadiumInfo(userId);
+    const managerCard = await economyService.getAssignedManager(userId);
+    const headCoachName = managerCard ? `${managerCard.name}` : undefined;
 
     return new ClubMatchSide(
       userId,
@@ -112,7 +114,8 @@ export class MatchService {
       squad,
       stadium.tierInfo.homeMoraleBuff,
       getTacticInfo(user.tactic),
-      false
+      false,
+      headCoachName
     );
   }
 

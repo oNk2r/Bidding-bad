@@ -1,7 +1,7 @@
 import { prisma } from "../database/client.js";
 import { playerService } from "./playerService.js";
 import { calculatePlayerValue, getCardTier, Player } from "../models/player.js";
-import type { Position } from "../config/constants.js";
+import { MAX_INVENTORY_CARDS, type Position } from "../config/constants.js";
 import type { InventoryCard } from "@prisma/client";
 
 export interface DailyOffer {
@@ -129,6 +129,14 @@ export class DailyShopService {
         return {
           success: false,
           message: `❌ Insufficient coins! **${offer.name}** costs **${offer.price.toLocaleString()} Coins** (You have: **${user.coins.toLocaleString()} Coins**).`,
+        };
+      }
+
+      const buyerCardCount = await tx.inventoryCard.count({ where: { userId } });
+      if (buyerCardCount >= MAX_INVENTORY_CARDS) {
+        return {
+          success: false,
+          message: `❌ Inventory limit reached (**${buyerCardCount}/${MAX_INVENTORY_CARDS} cards**)! Please \`/quicksell\` or \`/sell\` cards before signing from the Daily Showcase.`,
         };
       }
 

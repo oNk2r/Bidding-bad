@@ -6,7 +6,7 @@ import type { Command } from "../types.js";
 export const profileCommand: Command = {
   data: new SlashCommandBuilder()
     .setName("profile")
-    .setDescription("View comprehensive manager career stats, ratings, archetypes, and role badges")
+    .setDescription("View comprehensive manager career stats, ratings, and role badges")
     .addUserOption((opt) =>
       opt.setName("user").setDescription("The manager whose profile to inspect").setRequired(false)
     ),

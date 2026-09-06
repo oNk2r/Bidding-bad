@@ -9,10 +9,7 @@ export function createManagerProfileEmbed(profile: ManagerProfile): EmbedBuilder
     .setDescription(
       `**${profile.clubName}**\n` +
         (profile.motto ? `*\"${profile.motto}\"*\n` : "") +
-        `**Badges:** ${rolesStr}\n` +
-        (profile.archetypeTitle
-          ? `**Tactical Archetype:** **${profile.archetypeTitle}**\n*${profile.archetypeDesc}*`
-          : "")
+        `**Badges:** ${rolesStr}`
     )
     .setColor(0x22c55e)
     .addFields(

@@ -4,7 +4,7 @@ import { calculatePlayerValue, getCardTier, Player, type PlayerData } from "../m
 import { Squad } from "../models/squad.js";
 import { getStadiumTier, STADIUM_TIERS, type StadiumTierInfo } from "../models/stadium.js";
 import { spinWheel, type SpinSector } from "../models/spin.js";
-import type { Position } from "../config/constants.js";
+import { MAX_INVENTORY_CARDS, type Position } from "../config/constants.js";
 import type { InventoryCard, User } from "@prisma/client";
 
 export interface DropClaimResult {
@@ -163,7 +163,7 @@ export class EconomyService {
     userName?: string
   ): Promise<{ success: boolean; message: string; result?: PackOpenResult }> {
     const cost = packType === "standard" ? 250 : 600;
-    const count = packType === "standard" ? 3 : 5;
+    const count = packType === "standard" ? 1 : 3;
 
     return prisma.$transaction(async (tx) => {
       const user = await tx.user.findUnique({ where: { id: userId } });
@@ -171,6 +171,14 @@ export class EconomyService {
         return {
           success: false,
           message: `❌ Insufficient coins! **${packType.toUpperCase()} Pack** costs **${cost} coins** (You have: **${user?.coins ?? 0} coins**).`,
+        };
+      }
+
+      const existingCount = await tx.inventoryCard.count({ where: { userId } });
+      if (existingCount + count > MAX_INVENTORY_CARDS) {
+        return {
+          success: false,
+          message: `❌ Inventory limit reached (**${existingCount}/${MAX_INVENTORY_CARDS} cards**)! Opening this pack requires **${count} slots**. Please \`/quicksell\` or \`/sell\` some cards first.`,
         };
       }
 
@@ -261,8 +269,63 @@ export class EconomyService {
 
       return {
         success: true,
-        message: `Sold **${target.name}** for **${payout} Coins**!`,
+        message: `Sold **${target.name}** for **${payout.toLocaleString()} Coins**!`,
         coinsEarned: payout,
+        newBalance: user.coins,
+      };
+    });
+  }
+
+  async quicksellMultipleCards(
+    userId: string,
+    cardIdentifiers: string[]
+  ): Promise<{
+    success: boolean;
+    message: string;
+    count: number;
+    totalCoins: number;
+    newBalance?: number;
+  }> {
+    if (cardIdentifiers.length === 0) {
+      return { success: false, message: "❌ No cards selected for quicksell.", count: 0, totalCoins: 0 };
+    }
+
+    return prisma.$transaction(async (tx) => {
+      const allCards = await tx.inventoryCard.findMany({ where: { userId } });
+      const targets = allCards.filter((c) =>
+        cardIdentifiers.some(
+          (id) =>
+            c.id === id ||
+            c.name.toLowerCase() === id.toLowerCase()
+        )
+      );
+
+      if (targets.length === 0) {
+        return { success: false, message: "❌ Selected cards were not found in your inventory.", count: 0, totalCoins: 0 };
+      }
+
+      const tradable = targets.filter((c) => !c.untradeable);
+      if (tradable.length === 0) {
+        return { success: false, message: "❌ All selected cards are untradeable.", count: 0, totalCoins: 0 };
+      }
+
+      const totalPayout = tradable.reduce((sum, c) => sum + c.value, 0);
+      const tradableIds = tradable.map((c) => c.id);
+
+      await tx.inventoryCard.deleteMany({
+        where: { id: { in: tradableIds } },
+      });
+
+      const user = await tx.user.update({
+        where: { id: userId },
+        data: { coins: { increment: totalPayout } },
+      });
+
+      return {
+        success: true,
+        message: `Successfully liquidated **${tradable.length} cards** for **+${totalPayout.toLocaleString()} Coins**!`,
+        count: tradable.length,
+        totalCoins: totalPayout,
         newBalance: user.coins,
       };
     });
@@ -361,6 +424,14 @@ export class EconomyService {
         return {
           success: false,
           message: `⏳ Scout drop is still recharging! Available in **${timeStr}**.`,
+        };
+      }
+
+      const existingCount = await tx.inventoryCard.count({ where: { userId } });
+      if (existingCount >= MAX_INVENTORY_CARDS) {
+        return {
+          success: false,
+          message: `❌ Inventory limit reached (**${existingCount}/${MAX_INVENTORY_CARDS} cards**)! Please \`/quicksell\` or \`/sell\` cards to free up slots before claiming scout drops.`,
         };
       }
 
@@ -647,6 +718,57 @@ export class EconomyService {
     return prisma.inventoryCard.findUnique({
       where: { id: user.captainCardId },
     });
+  }
+
+  async setAssignedManager(
+    userId: string,
+    cardIdentifier: string
+  ): Promise<{ success: boolean; message: string; managerCard?: InventoryCard }> {
+    const inventory = await this.getInventory(userId);
+    const target = inventory.find(
+      (c) =>
+        (c.position === "MGR" || c.name.toLowerCase().includes("guardiola") || c.name.toLowerCase().includes("ancelotti")) &&
+        (c.id === cardIdentifier ||
+          c.name.toLowerCase() === cardIdentifier.toLowerCase() ||
+          c.name.toLowerCase().includes(cardIdentifier.toLowerCase()))
+    );
+
+    if (!target) {
+      return { success: false, message: `❌ Head Coach card \`${cardIdentifier}\` was not found in your inventory.` };
+    }
+
+    await prisma.gameRecord.upsert({
+      where: { key: `assigned_manager_${userId}` },
+      update: { value: target.id },
+      create: { key: `assigned_manager_${userId}`, value: target.id },
+    });
+
+    return {
+      success: true,
+      message: `Appointed **${target.name}** as Head Coach for your club!`,
+      managerCard: target,
+    };
+  }
+
+  async getAssignedManager(userId: string): Promise<InventoryCard | null> {
+    const record = await prisma.gameRecord.findUnique({
+      where: { key: `assigned_manager_${userId}` },
+    });
+
+    const inventory = await this.getInventory(userId);
+    if (record?.value) {
+      const explicit = inventory.find((c) => c.id === record.value);
+      if (explicit) return explicit;
+    }
+
+    // Auto-fallback to highest-rated MGR card in user inventory
+    const managers = inventory.filter((c) => c.position === "MGR");
+    if (managers.length > 0) {
+      managers.sort((a, b) => b.rating - a.rating);
+      return managers[0];
+    }
+
+    return null;
   }
 
   async buildMatchSquad(userId: string): Promise<Squad> {
