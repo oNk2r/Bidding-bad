@@ -149,6 +149,11 @@ export class EconomyService {
       maxRating = 89;
     }
 
+    if (Math.random() < 0.10) {
+      const mgr = playerService.getRandomManager({ min: minRating, max: maxRating });
+      if (mgr) return mgr;
+    }
+
     return playerService.getRandomPlayer({ min: minRating, max: maxRating });
   }
 

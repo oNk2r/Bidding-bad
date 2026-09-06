@@ -1,0 +1,182 @@
+[
+  {
+    "name": "Pep Guardiola",
+    "position": "MGR",
+    "rating": 94,
+    "startingPrice": 6,
+    "purchasePrice": 0,
+    "club": "Manchester City",
+    "nation": "Spain"
+  },
+  {
+    "name": "Carlo Ancelotti",
+    "position": "MGR",
+    "rating": 94,
+    "startingPrice": 6,
+    "purchasePrice": 0,
+    "club": "Real Madrid",
+    "nation": "Italy"
+  },
+  {
+    "name": "Sir Alex Ferguson",
+    "position": "MGR",
+    "rating": 96,
+    "startingPrice": 8,
+    "purchasePrice": 0,
+    "club": "Manchester United",
+    "nation": "Scotland"
+  },
+  {
+    "name": "Jürgen Klopp",
+    "position": "MGR",
+    "rating": 93,
+    "startingPrice": 5,
+    "purchasePrice": 0,
+    "club": "Liverpool",
+    "nation": "Germany"
+  },
+  {
+    "name": "José Mourinho",
+    "position": "MGR",
+    "rating": 92,
+    "startingPrice": 5,
+    "purchasePrice": 0,
+    "club": "Fenerbahçe",
+    "nation": "Portugal"
+  },
+  {
+    "name": "Zinedine Zidane",
+    "position": "MGR",
+    "rating": 93,
+    "startingPrice": 5,
+    "purchasePrice": 0,
+    "club": "Real Madrid",
+    "nation": "France"
+  },
+  {
+    "name": "Mikel Arteta",
+    "position": "MGR",
+    "rating": 89,
+    "startingPrice": 4,
+    "purchasePrice": 0,
+    "club": "Arsenal",
+    "nation": "Spain"
+  },
+  {
+    "name": "Xabi Alonso",
+    "position": "MGR",
+    "rating": 91,
+    "startingPrice": 5,
+    "purchasePrice": 0,
+    "club": "Bayer Leverkusen",
+    "nation": "Spain"
+  },
+  {
+    "name": "Hansi Flick",
+    "position": "MGR",
+    "rating": 90,
+    "startingPrice": 4,
+    "purchasePrice": 0,
+    "club": "FC Barcelona",
+    "nation": "Germany"
+  },
+  {
+    "name": "Diego Simeone",
+    "position": "MGR",
+    "rating": 90,
+    "startingPrice": 4,
+    "purchasePrice": 0,
+    "club": "Atlético Madrid",
+    "nation": "Argentina"
+  },
+  {
+    "name": "Lionel Scaloni",
+    "position": "MGR",
+    "rating": 91,
+    "startingPrice": 5,
+    "purchasePrice": 0,
+    "club": "Argentina",
+    "nation": "Argentina"
+  },
+  {
+    "name": "Arsène Wenger",
+    "position": "MGR",
+    "rating": 94,
+    "startingPrice": 6,
+    "purchasePrice": 0,
+    "club": "Arsenal",
+    "nation": "France"
+  },
+  {
+    "name": "Luis Enrique",
+    "position": "MGR",
+    "rating": 89,
+    "startingPrice": 4,
+    "purchasePrice": 0,
+    "club": "Paris Saint-Germain",
+    "nation": "Spain"
+  },
+  {
+    "name": "Simone Inzaghi",
+    "position": "MGR",
+    "rating": 89,
+    "startingPrice": 4,
+    "purchasePrice": 0,
+    "club": "Inter",
+    "nation": "Italy"
+  },
+  {
+    "name": "Antonio Conte",
+    "position": "MGR",
+    "rating": 89,
+    "startingPrice": 4,
+    "purchasePrice": 0,
+    "club": "Napoli",
+    "nation": "Italy"
+  },
+  {
+    "name": "Unai Emery",
+    "position": "MGR",
+    "rating": 88,
+    "startingPrice": 4,
+    "purchasePrice": 0,
+    "club": "Aston Villa",
+    "nation": "Spain"
+  },
+  {
+    "name": "Arne Slot",
+    "position": "MGR",
+    "rating": 88,
+    "startingPrice": 4,
+    "purchasePrice": 0,
+    "club": "Liverpool",
+    "nation": "Netherlands"
+  },
+  {
+    "name": "Julian Nagelsmann",
+    "position": "MGR",
+    "rating": 88,
+    "startingPrice": 4,
+    "purchasePrice": 0,
+    "club": "Germany",
+    "nation": "Germany"
+  },
+  {
+    "name": "Arrigo Sacchi",
+    "position": "MGR",
+    "rating": 95,
+    "startingPrice": 7,
+    "purchasePrice": 0,
+    "club": "AC Milan",
+    "nation": "Italy"
+  },
+  {
+    "name": "Johan Cruyff",
+    "position": "MGR",
+    "rating": 96,
+    "startingPrice": 8,
+    "purchasePrice": 0,
+    "club": "FC Barcelona",
+    "nation": "Netherlands"
+  }
+]

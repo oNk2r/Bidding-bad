@@ -19,7 +19,6 @@ import { dropCommand } from "./club/drop.js";
 import { renameclubCommand } from "./club/renameclub.js";
 import { kitCommand } from "./club/kit.js";
 import { mottoCommand } from "./club/motto.js";
-import { bannerCommand } from "./club/banner.js";
 
 // Economy, Packs & Season
 import { dailyCommand } from "./economy/daily.js";
@@ -36,7 +35,6 @@ import { dailyshopCommand } from "./market/dailyShop.js";
 
 // Match & Competition
 import { matchCommand } from "./game/match.js";
-import { weekendCommand } from "./game/weekend.js";
 
 // Rivals & Stadium
 import { divisionCommand } from "./rivals/division.js";
@@ -47,7 +45,6 @@ import { tournamentCommand } from "./tournament/tournament.js";
 
 // Utility & Canvas
 import { helpCommand } from "./utility/help.js";
-import { cardCommand } from "./utility/card.js";
 
 export function loadCommands(): Collection<string, Command> {
   const commands = new Collection<string, Command>();
@@ -71,7 +68,6 @@ export function loadCommands(): Collection<string, Command> {
     renameclubCommand,
     kitCommand,
     mottoCommand,
-    bannerCommand,
 
     // Economy, Packs & Season Pass
     dailyCommand,
@@ -88,16 +84,14 @@ export function loadCommands(): Collection<string, Command> {
 
     // Matches & Competition
     matchCommand,
-    weekendCommand,
     divisionCommand,
     leaderboardCommand,
     profileCommand,
     stadiumCommand,
     tournamentCommand,
 
-    // Utility & Dynamic Canvas
+    // Utility
     helpCommand,
-    cardCommand,
   ];
 
   for (const cmd of all) {

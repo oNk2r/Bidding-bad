@@ -25,8 +25,7 @@ export const helpCommand: Command = {
         {
           name: "🛡️ Club Identity & Lineup",
           value:
-            "`/club` — View club overview, tactical pitch & banner\n" +
-            "`/banner` — Set animated GIF or image club banner\n" +
+            "`/club` — View club overview, tactical pitch & Starting 5\n" +
             "`/lineup` — Configure your Starting 5 with interactive dropdown\n" +
             "`/tactic` — Change tactical playstyle (Gegenpress, Tiki-Taka, etc.)\n" +
             "`/captain` — Appoint club captain\n" +
@@ -45,7 +44,7 @@ export const helpCommand: Command = {
             "`/market` — Browse transfer market with 1-click Buy menus\n" +
             "`/sell` — List card on transfer market\n" +
             "`/quicksell` — Instant card liquidation\n" +
-            "`/dailyshop` — Rotating daily bargains\n" +
+            "`/dailyshop` — Rotating daily bargains with 1-click buy buttons\n" +
             "`/inventory` — Inspect card collection\n" +
             "`/trade` — 1-for-1 card barter proposal",
           inline: false,
@@ -54,13 +53,11 @@ export const helpCommand: Command = {
           name: "⚔️ Matches, Rivals & Tournaments",
           value:
             "`/match` — 90-min duel vs AI Bot or challenged manager\n" +
-            "`/weekend` — 5-match Weekend League gauntlet\n" +
             "`/tournament` — Server knockout tournaments\n" +
             "`/stadium` — Upgrade home venue for matchday coins\n" +
             "`/division` — Ranked Rivals tier ladder\n" +
             "`/leaderboard` — Server manager rankings\n" +
-            "`/profile` — Manager stats & card valuation\n" +
-            "`/card` — Render dynamic player card graphic",
+            "`/profile` — Manager stats & card valuation",
           inline: false,
         }
       )

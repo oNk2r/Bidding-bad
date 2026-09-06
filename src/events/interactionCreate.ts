@@ -27,7 +27,7 @@ import { tradeService } from "../services/tradeService.js";
 import { penaltyService } from "../services/penaltyService.js";
 import { sbcService } from "../services/sbcService.js";
 import { seasonService, SEASON_TIERS } from "../services/seasonService.js";
-import { weekendService } from "../services/weekendService.js";
+import { dailyShopService } from "../services/dailyShopService.js";
 import { createMatchResultEmbed } from "../ui/embeds/matchEmbeds.js";
 import { createTradeSuccessEmbed } from "../ui/embeds/tradeEmbeds.js";
 import { createTournamentLobbyEmbed } from "../ui/embeds/tournamentEmbeds.js";
@@ -35,7 +35,7 @@ import { createInventoryEmbed, createMarketEmbed } from "../ui/embeds/marketEmbe
 import { createPenaltyEmbed } from "../ui/embeds/penaltyEmbeds.js";
 import { createSpinEmbed } from "../ui/embeds/spinEmbeds.js";
 import { createSbcCatalogEmbed } from "../ui/embeds/sbcEmbeds.js";
-import { createSeasonPassEmbed, createWeekendLeagueEmbed } from "../ui/embeds/seasonEmbeds.js";
+import { createSeasonPassEmbed } from "../ui/embeds/seasonEmbeds.js";
 import type { StrikerDirection, KeeperDirection } from "../models/penalty.js";
 import { prisma } from "../database/client.js";
 
@@ -584,41 +584,24 @@ export async function onInteractionCreate(interaction: Interaction): Promise<voi
       return;
     }
 
-    // Weekend League Play Next Button
-    if (customId === "weekend_play_next") {
-      await interaction.deferUpdate();
-      const res = await weekendService.playNextMatch(interaction.user.id, interaction.user.displayName);
-      if (!res.success || !res.result || !res.run) {
-        await interaction.followUp({ content: res.message, flags: MessageFlags.Ephemeral });
+    // Daily Shop 1-Click Buy Buttons
+    if (customId.startsWith("dailyshop_buy_")) {
+      const idx = parseInt(customId.replace("dailyshop_buy_", ""), 10);
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+      const res = await dailyShopService.buyOffer(
+        interaction.user.id,
+        idx,
+        interaction.user.displayName
+      );
+      if (!res.success) {
+        await interaction.editReply({ content: res.message });
         return;
       }
-
-      const matchEmbed = createMatchResultEmbed(res.result);
-      const leagueEmbed = createWeekendLeagueEmbed(interaction.user.displayName, res.run);
-
-      let msg = res.message;
-      if (res.rewardDesc) {
-        msg += `\n\n${res.rewardDesc}`;
-      }
-
-      const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder()
-          .setCustomId("weekend_play_next")
-          .setLabel(res.run.isFinished ? "Gauntlet Complete 🏆" : `Next Match (${res.run.activeMatchIdx + 1}/5)`)
-          .setStyle(ButtonStyle.Success)
-          .setEmoji("⚽")
-          .setDisabled(res.run.isFinished)
-      );
-
       await interaction.editReply({
-        content: msg,
-        embeds: [matchEmbed, leagueEmbed],
-        components: [buttons],
+        content: `${res.message}\n💳 **New Treasury Balance:** **${res.newBalance?.toLocaleString()} Coins**\nView in your club with \`/inventory\` or \`/club\`!`,
       });
       return;
     }
-
-
   } catch (buttonErr) {
     console.error(`Error handling button interaction ${interaction.customId}:`, buttonErr);
     try {
@@ -638,7 +621,7 @@ export async function onInteractionCreate(interaction: Interaction): Promise<voi
     if (interaction.customId === "market_buy_select") {
       const listingId = interaction.values[0];
       await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-      const res = await marketService.buyCard(listingId, interaction.user.id, interaction.user.displayName);
+      const res = await marketService.buyCard(interaction.user.id, listingId, interaction.user.displayName);
       if (!res.success) {
         await interaction.editReply({ content: res.message });
         return;

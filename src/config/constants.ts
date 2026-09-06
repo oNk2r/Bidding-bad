@@ -9,14 +9,17 @@ export const POT_SIZE = 14;
 
 export const CORE_POSITIONS = ["GK", "DEF", "MID", "FW"] as const;
 export const FLEX_POSITIONS = ["DEF", "MID", "FW"] as const;
+export const ALL_POSITIONS = ["GK", "DEF", "MID", "FW", "MGR"] as const;
 
-export type Position = (typeof CORE_POSITIONS)[number];
+export type CorePosition = (typeof CORE_POSITIONS)[number];
+export type Position = (typeof ALL_POSITIONS)[number];
 
 export const POSITION_COLORS: Record<Position, number> = {
   FW: 0xef4444, // Red
   MID: 0x22c55e, // Green
   DEF: 0x3b82f6, // Blue
   GK: 0xeab308, // Gold
+  MGR: 0x8b5cf6, // Purple
 };
 
 export const INVALID_CLUBS = new Set([

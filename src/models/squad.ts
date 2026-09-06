@@ -1,4 +1,4 @@
-import { CORE_POSITIONS, FLEX_POSITIONS, SQUAD_SIZE, type Position } from "../config/constants.js";
+import { CORE_POSITIONS, FLEX_POSITIONS, SQUAD_SIZE, type Position, type CorePosition } from "../config/constants.js";
 import type { Player } from "./player.js";
 
 export class Squad {
@@ -20,13 +20,15 @@ export class Squad {
       return { canAdd: false, reason: "Your squad is already full (5/5 players)." };
     }
 
-    if (!CORE_POSITIONS.includes(player.position)) {
+    if (!CORE_POSITIONS.includes(player.position as CorePosition)) {
       return { canAdd: false, reason: `Unknown position: ${player.position}.` };
     }
 
+    const posToAdd = player.position as CorePosition;
+
     // Simulate adding the player
-    const simulatedPositions = [...this.players.map((p) => p.position), player.position];
-    const counts: Record<Position, number> = {
+    const simulatedPositions = [...this.players.map((p) => p.position as CorePosition), posToAdd];
+    const counts: Record<CorePosition, number> = {
       GK: 0,
       DEF: 0,
       MID: 0,
@@ -34,7 +36,9 @@ export class Squad {
     };
 
     for (const pos of simulatedPositions) {
-      counts[pos] = (counts[pos] || 0) + 1;
+      if (pos in counts) {
+        counts[pos] = (counts[pos] || 0) + 1;
+      }
     }
 
     // GK constraint: exactly 1 allowed, no GK flex
@@ -43,7 +47,7 @@ export class Squad {
     }
 
     // Position max: at most 2 for DEF, MID, FW (1 core + 1 flex)
-    if (counts[player.position] > 2) {
+    if (counts[posToAdd] > 2) {
       return {
         canAdd: false,
         reason: `You already have 2 ${player.position}s. Squad allows at most 2 (1 base + 1 flex).`,
@@ -84,8 +88,8 @@ export class Squad {
       return false;
     }
 
-    const positions = this.players.map((p) => p.position);
-    const counts: Record<Position, number> = {
+    const positions = this.players.map((p) => p.position as CorePosition);
+    const counts: Record<CorePosition, number> = {
       GK: 0,
       DEF: 0,
       MID: 0,
@@ -93,7 +97,9 @@ export class Squad {
     };
 
     for (const pos of positions) {
-      counts[pos] = (counts[pos] || 0) + 1;
+      if (pos in counts) {
+        counts[pos] = (counts[pos] || 0) + 1;
+      }
     }
 
     if (counts.GK !== 1) return false;
