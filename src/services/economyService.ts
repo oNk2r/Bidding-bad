@@ -162,7 +162,7 @@ export class EconomyService {
     packType: "standard" | "premium",
     userName?: string
   ): Promise<{ success: boolean; message: string; result?: PackOpenResult }> {
-    const cost = packType === "standard" ? 250 : 600;
+    const cost = packType === "standard" ? 500 : 1000;
     const count = packType === "standard" ? 1 : 3;
 
     return prisma.$transaction(async (tx) => {
@@ -324,6 +324,48 @@ export class EconomyService {
       return {
         success: true,
         message: `Successfully liquidated **${tradable.length} cards** for **+${totalPayout.toLocaleString()} Coins**!`,
+        count: tradable.length,
+        totalCoins: totalPayout,
+        newBalance: user.coins,
+      };
+    });
+  }
+
+  async quicksellAllCards(userId: string): Promise<{
+    success: boolean;
+    message: string;
+    count: number;
+    totalCoins: number;
+    newBalance?: number;
+  }> {
+    return prisma.$transaction(async (tx) => {
+      const allCards = await tx.inventoryCard.findMany({ where: { userId } });
+      const tradable = allCards.filter((c) => !c.untradeable);
+
+      if (tradable.length === 0) {
+        return {
+          success: false,
+          message: "❌ You have no tradable cards in your inventory to quicksell.",
+          count: 0,
+          totalCoins: 0,
+        };
+      }
+
+      const totalPayout = tradable.reduce((sum, c) => sum + c.value, 0);
+      const tradableIds = tradable.map((c) => c.id);
+
+      await tx.inventoryCard.deleteMany({
+        where: { id: { in: tradableIds } },
+      });
+
+      const user = await tx.user.update({
+        where: { id: userId },
+        data: { coins: { increment: totalPayout } },
+      });
+
+      return {
+        success: true,
+        message: `Successfully liquidated all **${tradable.length} tradable cards** for **+${totalPayout.toLocaleString()} Coins**!`,
         count: tradable.length,
         totalCoins: totalPayout,
         newBalance: user.coins,
@@ -887,6 +929,78 @@ export class EconomyService {
     }
 
     return inventory.slice(0, 5);
+  }
+
+  async autoSetLineup(userId: string): Promise<{
+    success: boolean;
+    message: string;
+    players?: InventoryCard[];
+    manager?: InventoryCard;
+  }> {
+    const inventory = await this.getInventory(userId);
+    const footballers = inventory.filter((c) => c.position !== "MGR");
+    const managers = inventory.filter((c) => c.position === "MGR");
+
+    if (footballers.length < 5) {
+      return {
+        success: false,
+        message: `❌ You need at least 5 footballer cards in your inventory to auto-generate a lineup (You currently have **${footballers.length}**).`,
+      };
+    }
+
+    const autoSquad = new Squad();
+    const sortedFootballers = [...footballers].sort((a, b) => b.rating - a.rating);
+    const selectedCards: InventoryCard[] = [];
+
+    // 1. Pick highest-rated GK if available
+    const bestGk = sortedFootballers.find((c) => c.position === "GK");
+    if (bestGk) {
+      autoSquad.addPlayer(
+        new Player(bestGk.name, bestGk.position as Position, bestGk.rating, 1, 0, bestGk.club, bestGk.nation)
+      );
+      selectedCards.push(bestGk);
+    }
+
+    // 2. Pick top outfielders fitting formation rules (1-2 DEF, 1-2 MID, 1-2 FW)
+    for (const card of sortedFootballers) {
+      if (selectedCards.length >= 5) break;
+      if (selectedCards.some((sc) => sc.id === card.id)) continue;
+
+      const p = new Player(card.name, card.position as Position, card.rating, 1, 0, card.club, card.nation);
+      if (autoSquad.canAddPlayer(p).canAdd) {
+        autoSquad.addPlayer(p);
+        selectedCards.push(card);
+      }
+    }
+
+    // 3. If remaining slots exist and strict position fits were exhausted, fill with next best footballers
+    if (selectedCards.length < 5) {
+      for (const card of sortedFootballers) {
+        if (selectedCards.length >= 5) break;
+        if (!selectedCards.some((sc) => sc.id === card.id)) {
+          selectedCards.push(card);
+        }
+      }
+    }
+
+    // 4. Pick highest-rated manager if available
+    const bestManager = managers.length > 0 ? [...managers].sort((a, b) => b.rating - a.rating)[0] : undefined;
+
+    const selectedIds = selectedCards.map((c) => c.id);
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        startingLineup: JSON.stringify(selectedIds),
+        ...(bestManager ? { assignedManagerId: bestManager.id } : {}),
+      },
+    });
+
+    return {
+      success: true,
+      message: "✅ Starting 5 Lineup & Head Coach successfully auto-configured!",
+      players: selectedCards,
+      manager: bestManager,
+    };
   }
 
   async recordMatchPlayed(userId: string): Promise<void> {

@@ -46,6 +46,16 @@ describe("Live Match Simulation & MatchStats", () => {
     expect(result.stats.awayShots).toBeGreaterThanOrEqual(0);
     expect(result.stats.homeShotsOnTarget).toBeLessThanOrEqual(result.stats.homeShots);
     expect(result.stats.awayShotsOnTarget).toBeLessThanOrEqual(result.stats.awayShots);
+    expect(result.stats.homeXg).toBeGreaterThanOrEqual(0);
+    expect(result.stats.awayXg).toBeGreaterThanOrEqual(0);
+    expect(result.stats.homeSaves).toBeGreaterThanOrEqual(0);
+    expect(result.stats.awaySaves).toBeGreaterThanOrEqual(0);
+    expect(result.stats.homeYellowCards).toBeGreaterThanOrEqual(0);
+    expect(result.stats.awayYellowCards).toBeGreaterThanOrEqual(0);
+    expect(Array.isArray(result.homeGoalScorers)).toBe(true);
+    expect(Array.isArray(result.awayGoalScorers)).toBe(true);
+    expect(result.homeGoalScorers.length).toBe(result.homeScore);
+    expect(result.awayGoalScorers.length).toBe(result.awayScore);
 
     // Verify Head Coach opening event was generated
     const tacticalEvents = result.events.filter((e) => e.eventType === "TACTICAL");

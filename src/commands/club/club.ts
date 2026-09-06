@@ -1,12 +1,35 @@
 import {
   SlashCommandBuilder,
   type ChatInputCommandInteraction,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
   AttachmentBuilder,
 } from "discord.js";
 import { economyService } from "../../services/economyService.js";
 import { createClubEmbed } from "../../ui/embeds/clubEmbeds.js";
 import { renderPitchSquad } from "../../ui/canvas/pitchCanvas.js";
 import type { Command } from "../types.js";
+
+export function createClubActionButtons(userId: string): ActionRowBuilder<ButtonBuilder> {
+  return new ActionRowBuilder<ButtonBuilder>().addComponents(
+    new ButtonBuilder()
+      .setCustomId(`club_edit_lineup_${userId}`)
+      .setLabel("Edit Lineup")
+      .setStyle(ButtonStyle.Primary)
+      .setEmoji("📋"),
+    new ButtonBuilder()
+      .setCustomId(`club_auto_lineup_${userId}`)
+      .setLabel("Auto Lineup")
+      .setStyle(ButtonStyle.Success)
+      .setEmoji("⚡"),
+    new ButtonBuilder()
+      .setCustomId(`club_edit_tactic_${userId}`)
+      .setLabel("Tactics")
+      .setStyle(ButtonStyle.Secondary)
+      .setEmoji("🧠")
+  );
+}
 
 export const clubCommand: Command = {
   data: new SlashCommandBuilder()
@@ -46,6 +69,8 @@ export const clubCommand: Command = {
       cardCount: inventory.length,
     });
 
+    const components = targetUser.id === interaction.user.id ? [createClubActionButtons(uid)] : [];
+
     // Render the tactical pitch graphic with Starting 5 lineup
     try {
       const squadCards = await economyService.getStartingLineup(uid);
@@ -60,12 +85,13 @@ export const clubCommand: Command = {
       await interaction.editReply({
         embeds: [embed],
         files: [pitchAttachment],
+        components,
       });
       return;
     } catch (err) {
       console.warn("Could not generate tactical pitch graphic:", err);
     }
 
-    await interaction.editReply({ embeds: [embed] });
+    await interaction.editReply({ embeds: [embed], components });
   },
 };

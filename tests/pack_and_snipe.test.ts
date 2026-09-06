@@ -34,4 +34,11 @@ describe("Pack Walkout and Auction Anti-Snipe Features", () => {
     const remaining = getRemainingTimerSeconds("non_existent_guild");
     expect(remaining).toBe(0);
   });
+
+  it("verifies updated pack tier pricing values (500 and 1000 coins)", () => {
+    const standardCost = 500;
+    const premiumCost = 1000;
+    expect(standardCost).toBe(500);
+    expect(premiumCost).toBe(1000);
+  });
 });

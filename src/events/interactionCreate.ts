@@ -7,6 +7,7 @@ import {
   ButtonBuilder,
   ButtonStyle,
   StringSelectMenuBuilder,
+  StringSelectMenuOptionBuilder,
 } from "discord.js";
 import { auctionService } from "../services/auctionService.js";
 import { startAuctionTimer, finishAuctionWorkflow } from "../jobs/auctionTimer.js";
@@ -25,6 +26,7 @@ import { matchService } from "../services/matchService.js";
 import { marketService } from "../services/marketService.js";
 import { tradeService } from "../services/tradeService.js";
 import { penaltyService } from "../services/penaltyService.js";
+import { profileService } from "../services/profileService.js";
 import { sbcService } from "../services/sbcService.js";
 import { seasonService, SEASON_TIERS } from "../services/seasonService.js";
 import { dailyShopService } from "../services/dailyShopService.js";
@@ -36,6 +38,7 @@ import { createPenaltyEmbed } from "../ui/embeds/penaltyEmbeds.js";
 import { createSpinEmbed } from "../ui/embeds/spinEmbeds.js";
 import { createSbcCatalogEmbed } from "../ui/embeds/sbcEmbeds.js";
 import { createSeasonPassEmbed } from "../ui/embeds/seasonEmbeds.js";
+import { TACTICS_CATALOG, getTacticInfo } from "../models/tactics.js";
 import type { StrikerDirection, KeeperDirection } from "../models/penalty.js";
 import { prisma } from "../database/client.js";
 
@@ -594,6 +597,187 @@ export async function onInteractionCreate(interaction: Interaction): Promise<voi
       });
       return;
     }
+
+    // Quicksell All Button
+    if (customId === "quicksell_all_btn") {
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+      const res = await economyService.quicksellAllCards(interaction.user.id);
+      if (!res.success) {
+        await interaction.editReply({ content: res.message });
+        return;
+      }
+      await interaction.editReply({
+        content: `💰 ${res.message}\n💳 **New Treasury Balance:** **${res.newBalance?.toLocaleString()} Coins**`,
+      });
+      return;
+    }
+
+    // Club Interactive Buttons: Edit Lineup, Auto Lineup, Tactics
+    if (customId.startsWith("club_edit_lineup")) {
+      const parts = customId.split("_");
+      const targetUserId = parts[3] || interaction.user.id;
+      if (interaction.user.id !== targetUserId) {
+        await interaction.reply({
+          content: "❌ You can only edit your own club's lineup!",
+          flags: MessageFlags.Ephemeral,
+        });
+        return;
+      }
+
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+      const inventory = await economyService.getInventory(interaction.user.id);
+      const footballers = inventory.filter((c) => c.position !== "MGR");
+      const managers = inventory.filter((c) => c.position === "MGR");
+      const activeManager = await economyService.getAssignedManager(interaction.user.id);
+
+      if (footballers.length < 5) {
+        await interaction.editReply({
+          content: `❌ You need at least 5 footballer cards in your inventory to configure a starting lineup (You have **${footballers.length} footballers**).\nCollect cards with \`/daily\`, \`/dailyshop\`, \`/pack\`, or \`/market\`.`,
+        });
+        return;
+      }
+
+      const components: ActionRowBuilder<StringSelectMenuBuilder>[] = [];
+
+      const playerOptions = footballers.slice(0, 25).map((c) =>
+        new StringSelectMenuOptionBuilder()
+          .setLabel(`${c.name.slice(0, 25)} (${c.rating} ${c.position})`)
+          .setDescription(`${c.club.slice(0, 20)} • ${c.nation.slice(0, 20)}`)
+          .setValue(c.id)
+      );
+
+      const playerMenu = new StringSelectMenuBuilder()
+        .setCustomId("lineup_select_5")
+        .setPlaceholder("⚽ Select exactly 5 footballers for Starting Lineup")
+        .setMinValues(5)
+        .setMaxValues(5)
+        .addOptions(playerOptions);
+
+      components.push(new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(playerMenu));
+
+      if (managers.length > 0) {
+        const managerOptions = managers.slice(0, 25).map((m) =>
+          new StringSelectMenuOptionBuilder()
+            .setLabel(`${m.name.slice(0, 25)} (${m.rating} MGR)`)
+            .setDescription(`${m.club.slice(0, 20)} • ${m.nation.slice(0, 20)}`)
+            .setValue(m.id)
+            .setDefault(activeManager?.id === m.id)
+        );
+
+        const managerMenu = new StringSelectMenuBuilder()
+          .setCustomId("lineup_select_manager")
+          .setPlaceholder(
+            activeManager
+              ? `👔 Current Coach: ${activeManager.name} (${activeManager.rating} MGR)`
+              : "👔 Appoint a Head Coach / Manager"
+          )
+          .setMinValues(1)
+          .setMaxValues(1)
+          .addOptions(managerOptions);
+
+        components.push(new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(managerMenu));
+      }
+
+      const coachStatus = activeManager
+        ? `👔 **Active Head Coach:** **${activeManager.name}** (\`${activeManager.rating} MGR\` — *${activeManager.club}*)`
+        : `👔 **Active Head Coach:** *None (Sign a manager in \`/dailyshop\` or \`/pack\`!)*`;
+
+      await interaction.editReply({
+        content:
+          `📋 **Club Roster & Starting 5 Lineup Editor**\n` +
+          `${coachStatus}\n\n` +
+          `• **Starting 5:** Select exactly 5 footballers below.\n` +
+          `• **Head Coach:** ${managers.length > 0 ? "Select your tactical manager below." : "*Acquire managers from `/dailyshop` or `/pack` to appoint.*"}\n` +
+          `*Formation Rules: Exactly 1 GK, and 1-2 DEF, 1-2 MID, 1-2 FW.*`,
+        components,
+      });
+      return;
+    }
+
+    if (customId.startsWith("club_auto_lineup")) {
+      const parts = customId.split("_");
+      const targetUserId = parts[3] || interaction.user.id;
+      if (interaction.user.id !== targetUserId) {
+        await interaction.reply({
+          content: "❌ You can only auto-configure your own club's lineup!",
+          flags: MessageFlags.Ephemeral,
+        });
+        return;
+      }
+
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+      const res = await economyService.autoSetLineup(interaction.user.id);
+      if (!res.success || !res.players) {
+        await interaction.editReply({ content: res.message });
+        return;
+      }
+
+      const playerList = res.players
+        .map((p) => `• **${p.name}** (\`${p.rating} ${p.position}\` — *${p.club}*)`)
+        .join("\n");
+      const coachText = res.manager
+        ? `👔 **Head Coach:** **${res.manager.name}** (\`${res.manager.rating} MGR\` — *${res.manager.club}*)`
+        : `👔 **Head Coach:** *None (Sign a manager from \`/dailyshop\` or \`/pack\`)*`;
+
+      const embed = new EmbedBuilder()
+        .setTitle("⚡ Auto-Lineup Configured!")
+        .setDescription(
+          `Your highest-rated Starting 5 and Head Coach have been automatically selected and saved:\n\n` +
+            `**Starting 5 Squad:**\n${playerList}\n\n` +
+            `${coachText}\n\n` +
+            `*Run \`/club\` to view your updated tactical pitch formation!*`
+        )
+        .setColor(0x22c55e);
+
+      await interaction.editReply({ embeds: [embed] });
+      return;
+    }
+
+    if (customId.startsWith("club_edit_tactic")) {
+      const parts = customId.split("_");
+      const targetUserId = parts[3] || interaction.user.id;
+      if (interaction.user.id !== targetUserId) {
+        await interaction.reply({
+          content: "❌ You can only change your own club's tactic!",
+          flags: MessageFlags.Ephemeral,
+        });
+        return;
+      }
+
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+      const user = await economyService.ensureUser(interaction.user.id);
+
+      const tacticOptions = Object.values(TACTICS_CATALOG).map((t) =>
+        new StringSelectMenuOptionBuilder()
+          .setLabel(`${t.emoji} ${t.name}`)
+          .setDescription(`${t.strengthDesc.slice(0, 50)}`)
+          .setValue(t.tacticType)
+          .setDefault(user.tactic === t.tacticType)
+      );
+
+      const tacticMenu = new StringSelectMenuBuilder()
+        .setCustomId("club_tactic_select")
+        .setPlaceholder(`🧠 Current: ${getTacticInfo(user.tactic).name} — Choose a new playstyle`)
+        .setMinValues(1)
+        .setMaxValues(1)
+        .addOptions(tacticOptions);
+
+      const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(tacticMenu);
+
+      await interaction.editReply({
+        content:
+          `🧠 **Club Tactical Playstyle Selector**\n` +
+          `Select your club's tactical identity below. Playstyles directly counter specific opponents in \`/match\`:\n\n` +
+          `• 🪄 **Tiki-Taka** ➔ Counters 🧱 Park the Bus\n` +
+          `• ⚡ **Gegenpress** ➔ Counters 🪄 Tiki-Taka\n` +
+          `• 🎯 **Counter-Attack** ➔ Counters ⚡ Gegenpress\n` +
+          `• 🚀 **All-Out Attack** ➔ Counters 🎯 Counter-Attack\n` +
+          `• 🧱 **Park the Bus** ➔ Counters 🚀 All-Out Attack\n` +
+          `• ⚖️ **Balanced** ➔ Versatile all-round play`,
+        components: [row],
+      });
+      return;
+    }
   } catch (buttonErr) {
     console.error(`Error handling button interaction ${interaction.customId}:`, buttonErr);
     try {
@@ -653,7 +837,7 @@ export async function onInteractionCreate(interaction: Interaction): Promise<voi
       return;
     }
 
-    if (interaction.customId === "quicksell_multi_select") {
+    if (interaction.customId.startsWith("quicksell_multi_select")) {
       const cardIds = interaction.values;
       await interaction.deferReply({ flags: MessageFlags.Ephemeral });
       const res = await economyService.quicksellMultipleCards(interaction.user.id, cardIds);
@@ -665,6 +849,31 @@ export async function onInteractionCreate(interaction: Interaction): Promise<voi
       await interaction.editReply({
         content: `💰 ${res.message}\n💳 **New Treasury Balance:** **${res.newBalance?.toLocaleString()} Coins**`,
       });
+      return;
+    }
+
+    if (interaction.customId === "club_tactic_select") {
+      const selectedTactic = interaction.values[0];
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+      await profileService.setClubTactic(interaction.user.id, selectedTactic);
+
+      const tInfo = getTacticInfo(selectedTactic);
+      const countersStr = tInfo.counters ? getTacticInfo(tInfo.counters).name : "None";
+      const vulnStr = tInfo.vulnerableTo ? getTacticInfo(tInfo.vulnerableTo).name : "None";
+
+      const embed = new EmbedBuilder()
+        .setTitle(`${tInfo.emoji} Tactical Identity Set: ${tInfo.name}`)
+        .setDescription(
+          `**${interaction.user.displayName}**, your club is now drilling **${tInfo.name}**.\n\n` +
+            `• **Philosophy:** ${tInfo.description}\n` +
+            `• **Tactical Strength:** ${tInfo.strengthDesc}\n` +
+            `• **Tactical Weakness:** ${tInfo.weaknessDesc}\n` +
+            `• **Counters:** ${countersStr}   •   **Vulnerable To:** ${vulnStr}\n`
+        )
+        .setColor(0x22c55e)
+        .setFooter({ text: "Your tactical choice directly impacts /match calculations." });
+
+      await interaction.editReply({ embeds: [embed] });
       return;
     }
   }

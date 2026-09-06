@@ -10,9 +10,10 @@ import {
 
 export interface MatchEvent {
   minute: number;
-  eventType: "GOAL" | "SAVE" | "MISS" | "YELLOW_CARD" | "TACTICAL";
+  eventType: "GOAL" | "SAVE" | "MISS" | "YELLOW_CARD" | "RED_CARD" | "TACTICAL" | "WOODWORK" | "COUNTER";
   team: "HOME" | "AWAY";
   playerName: string;
+  assistName?: string;
   commentary: string;
 }
 
@@ -23,10 +24,22 @@ export interface MatchStats {
   awayShots: number;
   homeShotsOnTarget: number;
   awayShotsOnTarget: number;
+  homeXg: number;
+  awayXg: number;
   homeCorners: number;
   awayCorners: number;
   homeFouls: number;
   awayFouls: number;
+  homeYellowCards: number;
+  awayYellowCards: number;
+  homeSaves: number;
+  awaySaves: number;
+}
+
+export interface GoalEntry {
+  name: string;
+  minute: number;
+  assist?: string;
 }
 
 export class ClubMatchSide {
@@ -81,6 +94,8 @@ export interface MatchResult {
   away: ClubMatchSide;
   homeScore: number;
   awayScore: number;
+  homeGoalScorers: GoalEntry[];
+  awayGoalScorers: GoalEntry[];
   events: MatchEvent[];
   stats: MatchStats;
   mvp: string;
@@ -133,31 +148,46 @@ export function simulateMatch(
     away.tactic
   );
 
-  // Effective power ratings
-  const homePower = home.squadScore + home.stadiumBonus + homeMod;
-  const awayPower = away.squadScore + awayMod;
+  // Effective ratings incorporating Squad OVR, Chemistry, Stadium Morale & Tactical matchup
+  const homePower = home.squadScore + (home.chemistryBonus * 0.1) + home.stadiumBonus + homeMod;
+  const awayPower = away.squadScore + (away.chemistryBonus * 0.1) + awayMod;
   const diff = homePower - awayPower;
 
   const events: MatchEvent[] = [];
+  const homeGoalScorers: GoalEntry[] = [];
+  const awayGoalScorers: GoalEntry[] = [];
+
   let homeGoals = 0;
   let awayGoals = 0;
-
   let homeShots = 0;
   let awayShots = 0;
   let homeOnTarget = 0;
   let awayOnTarget = 0;
+  let homeXg = 0;
+  let awayXg = 0;
+  let homeSaves = 0;
+  let awaySaves = 0;
+  let homeYellowCards = 0;
+  let awayYellowCards = 0;
   let homeCorners = Math.floor(Math.random() * 4) + 2;
   let awayCorners = Math.floor(Math.random() * 4) + 2;
   let homeFouls = Math.floor(Math.random() * 5) + 3;
   let awayFouls = Math.floor(Math.random() * 5) + 3;
 
-  const homePossession = Math.min(72, Math.max(28, Math.round(50 + diff * 2 + (Math.random() * 8 - 4))));
+  // Tactical possession weightings
+  let basePossession = 50 + diff * 1.8;
+  if (home.tactic.tacticType === TacticType.TIKI_TAKA) basePossession += 7;
+  if (away.tactic.tacticType === TacticType.TIKI_TAKA) basePossession -= 7;
+  if (home.tactic.tacticType === TacticType.PARK_THE_BUS) basePossession -= 10;
+  if (away.tactic.tacticType === TacticType.PARK_THE_BUS) basePossession += 10;
+
+  const homePossession = Math.min(74, Math.max(26, Math.round(basePossession + (Math.random() * 6 - 3))));
   const awayPossession = 100 - homePossession;
 
-  // Key event intervals
-  const keyMinutes = [8, 21, 34, 44, 55, 68, 81, 89];
+  // Key match moments
+  const keyMinutes = [7, 18, 29, 39, 45, 56, 68, 79, 87, 92];
 
-  // Head coach opening tactical event
+  // Head coach opening tactical setup event
   if (home.headCoach || away.headCoach) {
     const coachTeam = home.headCoach ? home : away;
     const coachName = coachTeam.headCoach || coachTeam.managerName;
@@ -170,8 +200,20 @@ export function simulateMatch(
     });
   }
 
+  // Player scoring/performance tracker for MVP
+  const playerStatsMap = new Map<string, { player: Player; points: number }>();
+  const registerPlayer = (p: Player, pts = 0) => {
+    const entry = playerStatsMap.get(p.name) || { player: p, points: p.rating * 0.1 };
+    entry.points += pts;
+    playerStatsMap.set(p.name, entry);
+  };
+
+  [...home.squad.players, ...away.squad.players].forEach((p) => registerPlayer(p));
+
   for (const min of keyMinutes) {
-    const isHomeAttack = Math.random() * 100 < 50 + diff * 1.6;
+    // Determine which side creates the attacking opportunity
+    const attackBias = 50 + diff * 1.5 + (home.tactic.tacticType === TacticType.ALL_OUT_ATTACK ? 8 : 0) - (away.tactic.tacticType === TacticType.ALL_OUT_ATTACK ? 8 : 0);
+    const isHomeAttack = Math.random() * 100 < attackBias;
     const attackingSide = isHomeAttack ? home : away;
     const defendingSide = isHomeAttack ? away : home;
     const teamKey: "HOME" | "AWAY" = isHomeAttack ? "HOME" : "AWAY";
@@ -185,11 +227,16 @@ export function simulateMatch(
     const gks = defendingSide.squad.players.filter((p) => p.position === "GK");
 
     const attacker =
-      forwards.length > 0 && Math.random() < 0.65
+      forwards.length > 0 && Math.random() < 0.7
         ? forwards[Math.floor(Math.random() * forwards.length)]
         : mids.length > 0
           ? mids[Math.floor(Math.random() * mids.length)]
           : attackingSide.squad.players[0] || new Player("Striker", "FW", 85, 1);
+
+    const assister =
+      mids.length > 0 && Math.random() < 0.65
+        ? mids[Math.floor(Math.random() * mids.length)]
+        : forwards.find((f) => f.name !== attacker.name) || undefined;
 
     const defender =
       defs.length > 0
@@ -198,68 +245,114 @@ export function simulateMatch(
 
     const gk = gks[0] || new Player("Goalkeeper", "GK", 85, 1);
 
-    const roll = Math.random() * 100;
-    const baseGoalChance = isHomeAttack ? 30 + diff * 0.9 : 30 - diff * 0.9;
+    // Goal chance influenced by rating diff, tactics & attacker quality
+    const ratingAdvantage = (attacker.rating - (gk.rating + defender.rating) / 2) * 0.8;
+    let baseGoalChance = isHomeAttack ? 28 + diff * 0.8 + ratingAdvantage : 28 - diff * 0.8 + ratingAdvantage;
 
-    if (roll < baseGoalChance) {
-      // GOAL
+    if (attackingSide.tactic.tacticType === TacticType.GEGENPRESS) baseGoalChance += 4;
+    if (attackingSide.tactic.tacticType === TacticType.COUNTER_ATTACK) baseGoalChance += 5;
+    if (defendingSide.tactic.tacticType === TacticType.PARK_THE_BUS) baseGoalChance -= 7;
+
+    const eventRoll = Math.random() * 100;
+    const shotXg = Math.min(0.85, Math.max(0.12, (baseGoalChance / 100) * (0.8 + Math.random() * 0.4)));
+
+    if (isHomeAttack) homeXg += shotXg;
+    else awayXg += shotXg;
+
+    if (eventRoll < baseGoalChance) {
+      // GOAL SCORED!
       if (isHomeAttack) {
         homeGoals++;
         homeOnTarget++;
+        homeGoalScorers.push({
+          name: attacker.name,
+          minute: min,
+          assist: assister?.name !== attacker.name ? assister?.name : undefined,
+        });
       } else {
         awayGoals++;
         awayOnTarget++;
+        awayGoalScorers.push({
+          name: attacker.name,
+          minute: min,
+          assist: assister?.name !== attacker.name ? assister?.name : undefined,
+        });
       }
 
+      registerPlayer(attacker, 8);
+      if (assister && assister.name !== attacker.name) registerPlayer(assister, 4);
+
+      const assistNote = assister && assister.name !== attacker.name ? ` *(Assist: ${assister.name})*` : "";
       const goalPhrases = [
-        `⚽ **GOAL! (${min}')** Spectacular finish! **${attacker.name}** curls a venomous strike into the top corner for **${attackingSide.clubName}**!`,
-        `⚽ **GOAL! (${min}')** Pure class! **${attacker.name}** dribbles past the defender and slots it calmly past ${gk.name}!`,
-        `⚽ **GOAL! (${min}')** Bullet header! **${attacker.name}** rises above everyone to thump the ball home for **${attackingSide.clubName}**!`,
-        `⚽ **GOAL! (${min}')** Rapid counter-attack! **${attacker.name}** unleashes an unstoppable rocket!`,
+        `⚽ **GOAL! (${min}')** Top corner finish! **${attacker.name}** curls a brilliant strike home for **${attackingSide.clubName}**!${assistNote}`,
+        `⚽ **GOAL! (${min}')** Ice-cold composure! **${attacker.name}** dribbles past ${defender.name} and slots it past ${gk.name}!${assistNote}`,
+        `⚽ **GOAL! (${min}')** Bullet header! **${attacker.name}** rises above the defense and thumps it into the net!${assistNote}`,
+        `⚽ **GOAL! (${min}')** Lethal counter! **${attacker.name}** unleashes an unstoppable rocket into the roof of the net!${assistNote}`,
       ];
-      const selectedPhrase = goalPhrases[Math.floor(Math.random() * goalPhrases.length)];
 
       events.push({
         minute: min,
         eventType: "GOAL",
         team: teamKey,
         playerName: attacker.name,
-        commentary: selectedPhrase,
+        assistName: assister?.name,
+        commentary: goalPhrases[Math.floor(Math.random() * goalPhrases.length)],
       });
-    } else if (roll < baseGoalChance + 32) {
-      // SAVE
+    } else if (eventRoll < baseGoalChance + 32) {
+      // SPECTACULAR GOALKEEPER SAVE
       if (isHomeAttack) homeOnTarget++;
       else awayOnTarget++;
+
+      if (isHomeAttack) awaySaves++;
+      else homeSaves++;
+
+      registerPlayer(gk, 3.5);
 
       events.push({
         minute: min,
         eventType: "SAVE",
         team: teamKey,
         playerName: gk.name,
-        commentary: `🧤 **WHAT A SAVE! (${min}')** **${gk.name}** produces a world-class reflex dive to deny **${attacker.name}**!`,
+        commentary: `🧤 **WHAT A SAVE! (${min}')** **${gk.name}** pulls off a magnificent flying reflex stop to deny **${attacker.name}**!`,
       });
-    } else if (roll < baseGoalChance + 48) {
-      // DEFENSIVE BLOCK / TACKLE
+    } else if (eventRoll < baseGoalChance + 42) {
+      // WOODWORK (Post / Crossbar)
+      if (isHomeAttack) homeOnTarget++;
+      else awayOnTarget++;
+
+      events.push({
+        minute: min,
+        eventType: "WOODWORK",
+        team: teamKey,
+        playerName: attacker.name,
+        commentary: `💥 **OFF THE WOODWORK! (${min}')** **${attacker.name}**'s venomous strike rattles the crossbar! Inches away from a goal!`,
+      });
+    } else if (eventRoll < baseGoalChance + 54) {
+      // DEFENSIVE TACKLE / BLOCK
+      registerPlayer(defender, 3);
       events.push({
         minute: min,
         eventType: "MISS",
         team: teamKey,
         playerName: defender.name,
-        commentary: `🛡️ **HEROIC DEFENDING (${min}')** **${defender.name}** slides in with a crunching tackle to avert danger!`,
+        commentary: `🛡️ **HEROIC DEFENDING (${min}')** **${defender.name}** produces a crunching last-ditch slide tackle to avert danger!`,
       });
-    } else if (roll < baseGoalChance + 58 && min > 30) {
+    } else if (eventRoll < baseGoalChance + 66 && min > 20) {
       // YELLOW CARD
+      if (isHomeAttack) awayYellowCards++;
+      else homeYellowCards++;
+
       events.push({
         minute: min,
         eventType: "YELLOW_CARD",
         team: isHomeAttack ? "AWAY" : "HOME",
         playerName: defender.name,
-        commentary: `🟨 **YELLOW CARD (${min}')** **${defender.name}** is booked for a cynical tactical foul to stop the breakaway!`,
+        commentary: `🟨 **BOOKING (${min}')** **${defender.name}** receives a yellow card for a tactical foul to halt a counter-attack!`,
       });
     }
   }
 
-  // Knockout shootout if tied
+  // Knockout penalty shootout if tied
   let penaltyHomeScore: number | undefined;
   let penaltyAwayScore: number | undefined;
 
@@ -288,26 +381,30 @@ export function simulateMatch(
 
   const isDraw = homeGoals === awayGoals && penaltyHomeScore === undefined;
 
-  // Economy coin rewards
-  let homeReward = 150;
-  let awayReward = 150;
+  // Economy rewards
+  let homeReward = 200;
+  let awayReward = 200;
 
   if (winner === home) {
-    homeReward = 500;
-    awayReward = 200;
+    homeReward = 600;
+    awayReward = 250;
   } else if (winner === away) {
-    awayReward = 500;
-    homeReward = 200;
+    awayReward = 600;
+    homeReward = 250;
   } else {
-    homeReward = 300;
-    awayReward = 300;
+    homeReward = 350;
+    awayReward = 350;
   }
 
-  // MVP
-  const allAttackingPlayers = [...home.squad.players, ...away.squad.players];
-  const mvpPlayer =
-    allAttackingPlayers.sort((a, b) => b.rating - a.rating)[0] ||
-    new Player("Star Player", "MID", 90, 1);
+  // Determine MVP based on highest performance points
+  let topPlayer: Player = home.squad.players[0] || new Player("Star Player", "FW", 90, 1);
+  let highestPoints = -1;
+  playerStatsMap.forEach(({ player, points }) => {
+    if (points > highestPoints) {
+      highestPoints = points;
+      topPlayer = player;
+    }
+  });
 
   const stats: MatchStats = {
     homePossession,
@@ -316,10 +413,16 @@ export function simulateMatch(
     awayShots: Math.max(awayGoals + awayOnTarget, awayShots),
     homeShotsOnTarget: Math.max(homeGoals, homeOnTarget),
     awayShotsOnTarget: Math.max(awayGoals, awayOnTarget),
+    homeXg: parseFloat(homeXg.toFixed(2)),
+    awayXg: parseFloat(awayXg.toFixed(2)),
     homeCorners,
     awayCorners,
     homeFouls,
     awayFouls,
+    homeYellowCards,
+    awayYellowCards,
+    homeSaves,
+    awaySaves,
   };
 
   return {
@@ -327,9 +430,11 @@ export function simulateMatch(
     away,
     homeScore: homeGoals,
     awayScore: awayGoals,
+    homeGoalScorers,
+    awayGoalScorers,
     events,
     stats,
-    mvp: `${mvpPlayer.name} (${mvpPlayer.rating} OVR)`,
+    mvp: `${topPlayer.name} (${topPlayer.rating} ${topPlayer.position})`,
     tacticalSummary: matchupNarrative,
     homeReward,
     awayReward,

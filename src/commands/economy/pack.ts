@@ -15,8 +15,8 @@ export const packCommand: Command = {
         .setDescription("Select pack tier")
         .setRequired(true)
         .addChoices(
-          { name: "Standard Pack (250 Coins - 1 Card)", value: "standard" },
-          { name: "Premium Star Pack (600 Coins - 3 Cards)", value: "premium" }
+          { name: "Standard Pack (500 Coins - 1 Card)", value: "standard" },
+          { name: "Premium Star Pack (1,000 Coins - 3 Cards)", value: "premium" }
         )
     ),
 

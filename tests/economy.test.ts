@@ -37,4 +37,44 @@ describe("Economy Models and Calculations", () => {
       expect(SPIN_SECTORS.some((s) => s.name === sector.name)).toBe(true);
     }
   });
+
+  it("selects optimal Starting 5 lineup with valid positions and highest ratings", async () => {
+    const { Squad } = await import("../src/models/squad.js");
+    const { Player } = await import("../src/models/player.js");
+
+    const sampleInventory = [
+      { name: "Alisson", position: "GK", rating: 89, club: "Liverpool", nation: "Brazil" },
+      { name: "Ederson", position: "GK", rating: 88, club: "Man City", nation: "Brazil" },
+      { name: "Van Dijk", position: "DEF", rating: 89, club: "Liverpool", nation: "Netherlands" },
+      { name: "Dias", position: "DEF", rating: 88, club: "Man City", nation: "Portugal" },
+      { name: "Saliba", position: "DEF", rating: 86, club: "Arsenal", nation: "France" },
+      { name: "De Bruyne", position: "MID", rating: 91, club: "Man City", nation: "Belgium" },
+      { name: "Rodri", position: "MID", rating: 89, club: "Man City", nation: "Spain" },
+      { name: "Haaland", position: "FW", rating: 91, club: "Man City", nation: "Norway" },
+      { name: "Salah", position: "FW", rating: 89, club: "Liverpool", nation: "Egypt" },
+    ];
+
+    const sorted = [...sampleInventory].sort((a, b) => b.rating - a.rating);
+    const autoSquad = new Squad();
+
+    const bestGk = sorted.find((c) => c.position === "GK");
+    if (bestGk) {
+      autoSquad.addPlayer(new Player(bestGk.name, bestGk.position as any, bestGk.rating, 1, 0, bestGk.club, bestGk.nation));
+    }
+
+    for (const card of sorted) {
+      if (autoSquad.players.length >= 5) break;
+      if (card.name === bestGk?.name) continue;
+      const p = new Player(card.name, card.position as any, card.rating, 1, 0, card.club, card.nation);
+      if (autoSquad.canAddPlayer(p).canAdd) {
+        autoSquad.addPlayer(p);
+      }
+    }
+
+    expect(autoSquad.isValid()).toBe(true);
+    expect(autoSquad.players.length).toBe(5);
+    expect(autoSquad.players.some((p) => p.name === "Alisson")).toBe(true);
+    expect(autoSquad.players.some((p) => p.name === "De Bruyne")).toBe(true);
+    expect(autoSquad.players.some((p) => p.name === "Haaland")).toBe(true);
+  });
 });
