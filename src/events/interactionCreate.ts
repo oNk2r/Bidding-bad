@@ -296,6 +296,9 @@ export async function onInteractionCreate(interaction: Interaction): Promise<voi
         return;
       }
 
+      const challengeKey = `match_${challengerId}_${opponentId}`;
+      matchService.resolveChallenge(challengeKey);
+
       await interaction.deferUpdate();
       const homeSide = await matchService.buildClubMatchSide(challengerId);
       const awaySide = await matchService.buildClubMatchSide(opponentId, interaction.user.displayName);
@@ -307,11 +310,14 @@ export async function onInteractionCreate(interaction: Interaction): Promise<voi
 
     if (customId.startsWith("match_") && customId.includes("_decline")) {
       const parts = customId.split("_");
+      const challengerId = parts[1];
       const opponentId = parts[2];
       if (interaction.user.id !== opponentId) {
         await interaction.reply({ content: "❌ Only the challenged manager can decline.", flags: MessageFlags.Ephemeral });
         return;
       }
+      const challengeKey = `match_${challengerId}_${opponentId}`;
+      matchService.resolveChallenge(challengeKey);
       await interaction.update({ content: "❌ Match challenge was declined.", embeds: [], components: [] });
       return;
     }

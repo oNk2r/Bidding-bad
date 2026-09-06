@@ -125,14 +125,20 @@ export const matchCommand: Command = {
       awaySide.tactic.name
     );
 
-    const buttons = createAcceptDeclineButtons(
-      `match_${interaction.user.id}_${opponentUser.id}`
-    );
+    const challengeKey = `match_${interaction.user.id}_${opponentUser.id}`;
+    const buttons = createAcceptDeclineButtons(challengeKey);
 
     await interaction.editReply({
       content: `<@${opponentUser.id}>, you have received a match challenge from <@${interaction.user.id}>!`,
       embeds: [embed],
       components: [buttons],
     });
+
+    matchService.createChallenge(
+      challengeKey,
+      interaction.user.id,
+      opponentUser.id,
+      interaction
+    );
   },
 };

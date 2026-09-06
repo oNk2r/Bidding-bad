@@ -4,7 +4,62 @@ import { calculateMatchRp, getDivisionByRp } from "../models/divisions.js";
 import { economyService } from "./economyService.js";
 import { getTacticInfo } from "../models/tactics.js";
 
+export interface ActiveMatchChallenge {
+  challengeKey: string;
+  challengerId: string;
+  opponentId: string;
+  interaction: any;
+  timeout: NodeJS.Timeout;
+}
+
 export class MatchService {
+  private pendingChallenges: Map<string, ActiveMatchChallenge> = new Map();
+
+  createChallenge(
+    challengeKey: string,
+    challengerId: string,
+    opponentId: string,
+    interaction: any
+  ): void {
+    const existing = this.pendingChallenges.get(challengeKey);
+    if (existing) {
+      clearTimeout(existing.timeout);
+      this.pendingChallenges.delete(challengeKey);
+    }
+
+    const timeout = setTimeout(async () => {
+      try {
+        const current = this.pendingChallenges.get(challengeKey);
+        if (current) {
+          this.pendingChallenges.delete(challengeKey);
+          await interaction.editReply({
+            content: `⏰ **Match Challenge Expired!** <@${opponentId}> did not respond within 60 seconds. The challenge has been cancelled.`,
+            embeds: [],
+            components: [],
+          });
+        }
+      } catch {
+        // Message might have been deleted or interaction closed
+      }
+    }, 60000);
+
+    this.pendingChallenges.set(challengeKey, {
+      challengeKey,
+      challengerId,
+      opponentId,
+      interaction,
+      timeout,
+    });
+  }
+
+  resolveChallenge(challengeKey: string): boolean {
+    const challenge = this.pendingChallenges.get(challengeKey);
+    if (!challenge) return false;
+    clearTimeout(challenge.timeout);
+    this.pendingChallenges.delete(challengeKey);
+    return true;
+  }
+
   async recordMatchOutcome(result: MatchResult): Promise<{
     homeRpDelta?: number;
     awayRpDelta?: number;
