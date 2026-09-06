@@ -1,9 +1,11 @@
 import { SlashCommandBuilder, type ChatInputCommandInteraction } from "discord.js";
 import { matchService } from "../../services/matchService.js";
 import { ClubMatchSide } from "../../models/match.js";
-import { createChallengeEmbed, createMatchResultEmbed } from "../../ui/embeds/matchEmbeds.js";
+import { createChallengeEmbed, createLiveMatchEmbed, createMatchResultEmbed } from "../../ui/embeds/matchEmbeds.js";
 import { createAcceptDeclineButtons } from "../../ui/components/buttons.js";
 import type { Command } from "../types.js";
+
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export async function runLiveMatchSimulation(
   interaction: any,
@@ -11,8 +13,59 @@ export async function runLiveMatchSimulation(
   awaySide: ClubMatchSide
 ): Promise<void> {
   const result = matchService.simulate(homeSide, awaySide, false);
-  const rpUpdate = await matchService.recordMatchOutcome(result);
+  const events = result.events;
 
+  // 1. Kickoff 0'
+  const kickoffEmbed = createLiveMatchEmbed(homeSide, awaySide, 0, 0, 0, [], false);
+  await interaction.editReply({
+    content: `⚔️ **MATCH COMMENCING!** ${homeSide.kitEmoji} **${homeSide.clubName}** vs ${awaySide.kitEmoji} **${awaySide.clubName}**`,
+    embeds: [kickoffEmbed],
+    components: [],
+  });
+  await delay(800);
+
+  // 2. First Half Action & Half-Time Whistle (45')
+  const firstHalfEvents = events.filter((e) => e.minute <= 45);
+  const firstHalfHome = firstHalfEvents.filter((e) => e.eventType === "GOAL" && e.team === "HOME").length;
+  const firstHalfAway = firstHalfEvents.filter((e) => e.eventType === "GOAL" && e.team === "AWAY").length;
+
+  const htEmbed = createLiveMatchEmbed(
+    homeSide,
+    awaySide,
+    firstHalfHome,
+    firstHalfAway,
+    45,
+    firstHalfEvents,
+    true
+  );
+  await interaction.editReply({
+    content: `⏸️ **HALF TIME!** Current score: **${firstHalfHome} - ${firstHalfAway}**`,
+    embeds: [htEmbed],
+  });
+  await delay(850);
+
+  // 3. Second Half Drama (75')
+  const midSecondEvents = events.filter((e) => e.minute <= 75);
+  const midHome = midSecondEvents.filter((e) => e.eventType === "GOAL" && e.team === "HOME").length;
+  const midAway = midSecondEvents.filter((e) => e.eventType === "GOAL" && e.team === "AWAY").length;
+
+  const midSecondEmbed = createLiveMatchEmbed(
+    homeSide,
+    awaySide,
+    midHome,
+    midAway,
+    75,
+    midSecondEvents,
+    false
+  );
+  await interaction.editReply({
+    content: `🔥 **LATE DRAMA (75')!** Current score: **${midHome} - ${midAway}**`,
+    embeds: [midSecondEmbed],
+  });
+  await delay(800);
+
+  // 4. Full Time Whistle & Stats
+  const rpUpdate = await matchService.recordMatchOutcome(result);
   const finalEmbed = createMatchResultEmbed(
     result,
     rpUpdate.homeRpDelta,
@@ -22,9 +75,8 @@ export async function runLiveMatchSimulation(
   );
 
   await interaction.editReply({
-    content: `🏁 **FULL TIME!** Final Score: ${homeSide.kitEmoji} **${homeSide.clubName} ${result.homeScore} - ${result.awayScore} ${awaySide.clubName}** ${awaySide.kitEmoji}`,
+    content: `🏁 **FULL TIME WHISTLE!** Final Score: **${result.homeScore} - ${result.awayScore}**`,
     embeds: [finalEmbed],
-    components: [],
   });
 }
 
