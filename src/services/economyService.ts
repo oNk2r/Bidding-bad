@@ -1032,9 +1032,12 @@ export class EconomyService {
       where: { id: userId },
       data: {
         startingLineup: JSON.stringify(selectedIds),
-        ...(bestManager ? { assignedManagerId: bestManager.id } : {}),
       },
     });
+
+    if (bestManager) {
+      await this.setAssignedManager(userId, bestManager.id);
+    }
 
     return {
       success: true,

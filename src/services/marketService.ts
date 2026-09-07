@@ -177,6 +177,14 @@ export class MarketService {
         return { success: false, message: "❌ You can only cancel your own listings." };
       }
 
+      const sellerCardCount = await tx.inventoryCard.count({ where: { userId: sellerId } });
+      if (sellerCardCount >= MAX_INVENTORY_CARDS) {
+        return {
+          success: false,
+          message: `❌ Cannot cancel listing! Inventory is full (**${sellerCardCount}/${MAX_INVENTORY_CARDS} cards**). Please quicksell or sell cards first.`,
+        };
+      }
+
       const cardData: ListedCardData = JSON.parse(listing.cardData);
 
       // Restore card to seller inventory

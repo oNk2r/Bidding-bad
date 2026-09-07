@@ -134,7 +134,8 @@ export function createMarketEmbed(
     .setDescription(
       `Browse active footballer listings offered by managers worldwide.\n` +
         `Total active listings: **${totalItems}** • Page **${page}/${totalPages}**\n\n` +
-        `*To purchase a player, type \`/buy listing_id:<ID>\` or use the quick buttons.*`
+        `*• Purchase a player: select from menu below or \`/buy listing_id:<ID>\`*\n` +
+        `*• Cancel your listing: click **Manage My Listings** below or \`/cancel_listing\`*`
     )
     .setColor(0xf59e0b)
     .setTimestamp();
@@ -156,7 +157,7 @@ export function createMarketEmbed(
     }
   }
 
-  embed.setFooter({ text: "Market transactions are processed instantly • /buy & /sell" });
+  embed.setFooter({ text: "Transfer Market • /buy • /sell • /cancel_listing" });
   return embed;
 }
 

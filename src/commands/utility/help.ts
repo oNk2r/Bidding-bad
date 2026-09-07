@@ -42,7 +42,9 @@ export const helpCommand: Command = {
             "`/drop` — Claim 6-hour scout drop\n" +
             "`/season` — Battle Pass progress & claim tier rewards\n" +
             "`/market` — Browse transfer market with 1-click Buy menus\n" +
+            "`/buy` — Buy footballer directly using listing ID\n" +
             "`/sell` — List card on transfer market\n" +
+            "`/cancel_listing` — Cancel active market listing and retrieve card\n" +
             "`/quicksell` — Instant card liquidation\n" +
             "`/dailyshop` — Rotating daily bargains with 1-click buy buttons\n" +
             "`/inventory` — Inspect card collection\n" +

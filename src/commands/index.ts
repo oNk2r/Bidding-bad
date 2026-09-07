@@ -29,7 +29,9 @@ import { seasonCommand } from "./economy/season.js";
 
 // Market
 import { marketCommand } from "./market/market.js";
+import { buyCommand } from "./market/buy.js";
 import { sellCommand } from "./market/sell.js";
+import { cancelListingCommand } from "./market/cancelListing.js";
 import { quicksellCommand } from "./market/quicksell.js";
 import { dailyshopCommand } from "./market/dailyShop.js";
 
@@ -76,9 +78,11 @@ export function loadCommands(): Collection<string, Command> {
     tradeCommand,
     seasonCommand,
 
-    // Transfer Market (with 1-click buying)
+    // Transfer Market (with 1-click buying & cancellation)
     marketCommand,
+    buyCommand,
     sellCommand,
+    cancelListingCommand,
     quicksellCommand,
     dailyshopCommand,
 

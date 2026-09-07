@@ -510,7 +510,60 @@ export async function onInteractionCreate(interaction: Interaction): Promise<voi
       if (totalPages > 1) {
         components.push(createPaginationButtons(safePage, totalPages, "mkt"));
       }
+      components.push(
+        new ActionRowBuilder<ButtonBuilder>().addComponents(
+          new ButtonBuilder()
+            .setCustomId("market_my_listings")
+            .setLabel("Manage My Listings / Cancel")
+            .setStyle(ButtonStyle.Secondary)
+            .setEmoji("📦")
+        )
+      );
       await interaction.editReply({ embeds: [embed], components });
+      return;
+    }
+
+    // Market My Listings & Direct Cancel Menu
+    if (customId === "market_my_listings") {
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+      const myListings = await marketService.getUserListings(interaction.user.id);
+
+      if (myListings.length === 0) {
+        await interaction.editReply({
+          content: "ℹ️ You currently have no active footballer listings on the Transfer Market.\nList cards using `/sell`!",
+        });
+        return;
+      }
+
+      const options = myListings.slice(0, 25).map((l) =>
+        new StringSelectMenuOptionBuilder()
+          .setLabel(`${l.card.name.slice(0, 25)} (${l.card.rating} ${l.card.position})`)
+          .setDescription(`Price: ${l.price.toLocaleString()} Coins • ID: ${l.id.slice(0, 15)}`)
+          .setValue(l.id)
+          .setEmoji("❌")
+      );
+
+      const cancelMenu = new StringSelectMenuBuilder()
+        .setCustomId("market_cancel_select")
+        .setPlaceholder("❌ Select a listing to cancel and retrieve card...")
+        .setMinValues(1)
+        .setMaxValues(1)
+        .addOptions(options);
+
+      const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(cancelMenu);
+
+      const lines = myListings.map(
+        (l, i) =>
+          `**${i + 1}.** **${l.card.name}** (\`${l.card.rating} ${l.card.position}\`) — 💰 **${l.price.toLocaleString()} Coins** | ID: \`${l.id}\``
+      );
+
+      await interaction.editReply({
+        content:
+          `📦 **Your Active Transfer Market Listings (${myListings.length}):**\n\n` +
+          lines.join("\n") +
+          `\n\n*Select a player from the dropdown below to cancel the listing and return the card to your inventory:*`,
+        components: [row],
+      });
       return;
     }
 
@@ -911,6 +964,20 @@ export async function onInteractionCreate(interaction: Interaction): Promise<voi
       }
       await interaction.editReply({
         content: `🎉 ${res.message}\n💳 New Balance: **${res.newBalance?.toLocaleString()} Coins**`,
+      });
+      return;
+    }
+
+    if (interaction.customId === "market_cancel_select") {
+      const listingId = interaction.values[0];
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+      const res = await marketService.cancelListing(interaction.user.id, listingId);
+      if (!res.success) {
+        await interaction.editReply({ content: res.message });
+        return;
+      }
+      await interaction.editReply({
+        content: `✅ ${res.message}\nCheck your updated squad and locker with \`/inventory\` or \`/club\`!`,
       });
       return;
     }

@@ -3,6 +3,8 @@ import {
   type ChatInputCommandInteraction,
   ActionRowBuilder,
   StringSelectMenuBuilder,
+  ButtonBuilder,
+  ButtonStyle,
 } from "discord.js";
 import { marketService } from "../../services/marketService.js";
 import { createMarketEmbed } from "../../ui/embeds/marketEmbeds.js";
@@ -12,7 +14,7 @@ import type { Command } from "../types.js";
 export const marketCommand: Command = {
   data: new SlashCommandBuilder()
     .setName("market")
-    .setDescription("Browse player cards listed on the global Transfer Market with 1-click buying")
+    .setDescription("Browse player cards listed on the global Transfer Market with 1-click buying & cancellation")
     .addIntegerOption((opt) =>
       opt.setName("page").setDescription("Page number").setRequired(false)
     )
@@ -52,6 +54,15 @@ export const marketCommand: Command = {
     if (totalPages > 1) {
       components.push(createPaginationButtons(safePage, totalPages, "mkt"));
     }
+
+    const actionButtons = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder()
+        .setCustomId("market_my_listings")
+        .setLabel("Manage My Listings / Cancel")
+        .setStyle(ButtonStyle.Secondary)
+        .setEmoji("📦")
+    );
+    components.push(actionButtons);
 
     await interaction.editReply({
       embeds: [embed],
