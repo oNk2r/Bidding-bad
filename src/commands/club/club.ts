@@ -60,6 +60,7 @@ export const clubCommand: Command = {
       kitEmoji: user.kitEmoji,
       motto: user.motto,
       bannerUrl: user.bannerUrl,
+      avatarUrl: targetUser.displayAvatarURL(),
       tacticName: user.tactic,
       captain,
       managerCard,

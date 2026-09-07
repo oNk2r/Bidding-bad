@@ -25,7 +25,7 @@ export const inventoryCommand: Command = {
     const totalPages = Math.max(1, Math.ceil(cards.length / 10));
     const safePage = Math.min(page, totalPages);
 
-    const embed = createInventoryEmbed(cards, target.displayName, safePage, 10);
+    const embed = createInventoryEmbed(cards, target.displayName, safePage, 10, target.displayAvatarURL());
     const buttons = createPaginationButtons(safePage, totalPages, `inv_${target.id}`);
 
     await interaction.editReply({

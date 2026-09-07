@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, type ChatInputCommandInteraction } from "discord.js";
 import { profileService } from "../../services/profileService.js";
 import { createManagerProfileEmbed } from "../../ui/embeds/profileEmbeds.js";
+import { createProfileButtons } from "../../ui/components/buttons.js";
 import type { Command } from "../types.js";
 
 export const profileCommand: Command = {
@@ -16,9 +17,14 @@ export const profileCommand: Command = {
 
     const target = interaction.options.getUser("user") || interaction.user;
     const profile = await profileService.getManagerProfile(target.id, target.displayName);
-    const embed = createManagerProfileEmbed(profile);
+    const embed = createManagerProfileEmbed(profile, target.displayAvatarURL());
+    const buttons = createProfileButtons(target.id);
 
-    await interaction.editReply({ embeds: [embed] });
+    await interaction.editReply({
+      embeds: [embed],
+      components: [buttons],
+    });
   },
 };
+
 

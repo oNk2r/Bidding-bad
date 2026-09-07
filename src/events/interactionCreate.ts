@@ -18,6 +18,7 @@ import {
   createPenaltyShooterButtons,
   createPenaltyKeeperButtons,
   createPaginationButtons,
+  createPackActionButtons,
 } from "../ui/components/buttons.js";
 import { BID_TIMER_SECONDS } from "../config/constants.js";
 import { economyService } from "../services/economyService.js";
@@ -26,6 +27,7 @@ import { matchService } from "../services/matchService.js";
 import { marketService } from "../services/marketService.js";
 import { tradeService } from "../services/tradeService.js";
 import { penaltyService } from "../services/penaltyService.js";
+import { divisionService } from "../services/divisionService.js";
 import { profileService } from "../services/profileService.js";
 import { sbcService } from "../services/sbcService.js";
 import { seasonService, SEASON_TIERS } from "../services/seasonService.js";
@@ -33,7 +35,9 @@ import { dailyShopService } from "../services/dailyShopService.js";
 import { createMatchResultEmbed } from "../ui/embeds/matchEmbeds.js";
 import { createTradeSuccessEmbed } from "../ui/embeds/tradeEmbeds.js";
 import { createTournamentLobbyEmbed } from "../ui/embeds/tournamentEmbeds.js";
-import { createInventoryEmbed, createMarketEmbed } from "../ui/embeds/marketEmbeds.js";
+import { createInventoryEmbed, createMarketEmbed, createPackOpenedEmbed } from "../ui/embeds/marketEmbeds.js";
+import { createClubEmbed } from "../ui/embeds/clubEmbeds.js";
+import { createDivisionProfileEmbed } from "../ui/embeds/divisionEmbeds.js";
 import { createPenaltyEmbed } from "../ui/embeds/penaltyEmbeds.js";
 import { createSpinEmbed } from "../ui/embeds/spinEmbeds.js";
 import { createSbcCatalogEmbed } from "../ui/embeds/sbcEmbeds.js";
@@ -454,12 +458,19 @@ export async function onInteractionCreate(interaction: Interaction): Promise<voi
       return;
     }
 
-    // Inventory Pagination
-    if (customId.startsWith("inv_") && (customId.includes("_prev_") || customId.includes("_next_"))) {
-      await interaction.deferUpdate();
+    // Inventory Pagination & Profile Quick View
+    if (customId.startsWith("inv_")) {
       const parts = customId.split("_");
       const targetUserId = parts[1];
-      const targetPage = parseInt(parts[3], 10);
+      const targetPage = parts.length > 3 ? parseInt(parts[3], 10) : parseInt(parts[2] || "1", 10) || 1;
+      const isFromProfileOrQuick = !customId.includes("_prev_") && !customId.includes("_next_");
+
+      if (isFromProfileOrQuick) {
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+      } else {
+        await interaction.deferUpdate();
+      }
+
       const cards = await economyService.getInventory(targetUserId);
       const totalPages = Math.max(1, Math.ceil(cards.length / 10));
       const safePage = Math.min(Math.max(1, targetPage), totalPages);
@@ -609,6 +620,102 @@ export async function onInteractionCreate(interaction: Interaction): Promise<voi
       await interaction.editReply({
         content: `💰 ${res.message}\n💳 **New Treasury Balance:** **${res.newBalance?.toLocaleString()} Coins**`,
       });
+      return;
+    }
+
+    // Pack Action: Open Again
+    if (customId === "pack_again_standard" || customId === "pack_again_premium") {
+      const packType = customId === "pack_again_premium" ? "premium" : "standard";
+      await interaction.deferUpdate();
+      const res = await economyService.openPack(
+        interaction.user.id,
+        packType,
+        interaction.user.displayName
+      );
+
+      if (!res.success || !res.result) {
+        await interaction.followUp({ content: res.message, flags: MessageFlags.Ephemeral });
+        return;
+      }
+
+      const avatar = interaction.user.displayAvatarURL();
+      const embed = createPackOpenedEmbed(res.result, interaction.user.displayName, avatar);
+      const canAffordAgain = res.result.newBalance >= res.result.cost;
+      const tradableCount = res.result.cards.filter((c) => !c.untradeable).length;
+      const buttons = createPackActionButtons(packType, canAffordAgain, tradableCount, res.result.cost);
+
+      await interaction.editReply({
+        content: "",
+        embeds: [embed],
+        components: [buttons],
+      });
+      return;
+    }
+
+    // Pack Action: Quick Sell Recent Pack
+    if (customId === "pack_quicksell_recent") {
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+      const res = await economyService.quicksellRecentPack(interaction.user.id);
+      if (!res.success) {
+        await interaction.editReply({ content: res.message });
+        return;
+      }
+      await interaction.editReply({
+        content: `💰 **Pack Liquidated!** Sold **${res.count} cards** for **+${res.totalCoins.toLocaleString()} Coins**.\n💳 **New Treasury Balance:** **${res.newBalance?.toLocaleString()} Coins**`,
+      });
+      return;
+    }
+
+    // Quick View Inventory
+    if (customId === "inventory_view_user") {
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+      const cards = await economyService.getInventory(interaction.user.id);
+      const avatar = interaction.user.displayAvatarURL();
+      const embed = createInventoryEmbed(cards, interaction.user.displayName, 1, 10, avatar);
+      await interaction.editReply({ embeds: [embed] });
+      return;
+    }
+
+    // Profile Action: View Club
+    if (customId.startsWith("profile_club_")) {
+      const targetUserId = customId.replace("profile_club_", "");
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+      const user = await economyService.ensureUser(targetUserId);
+      const captain = await economyService.getCaptain(targetUserId);
+      const managerCard = await economyService.getAssignedManager(targetUserId);
+      const squad = await economyService.buildMatchSquad(targetUserId);
+      const clubValue = await economyService.getClubValuation(targetUserId);
+      const inventory = await economyService.getInventory(targetUserId);
+
+      const embed = createClubEmbed({
+        userName: user.name,
+        clubName: user.clubName,
+        kitEmoji: user.kitEmoji,
+        motto: user.motto,
+        bannerUrl: user.bannerUrl,
+        tacticName: user.tactic,
+        captain,
+        managerCard,
+        squad,
+        coins: user.coins,
+        clubValue,
+        cardCount: inventory.length,
+      });
+
+      await interaction.editReply({ embeds: [embed] });
+      return;
+    }
+
+    // Profile Action: View Division Rivals
+    if (customId.startsWith("profile_rivals_")) {
+      const targetUserId = customId.replace("profile_rivals_", "");
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+      const profile = await divisionService.getDivisionProfile(targetUserId);
+      const embed = createDivisionProfileEmbed(profile);
+
+      await interaction.editReply({ embeds: [embed] });
       return;
     }
 

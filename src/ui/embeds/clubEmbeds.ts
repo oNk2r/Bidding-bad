@@ -10,6 +10,7 @@ export function createClubEmbed(params: {
   kitEmoji: string;
   motto?: string | null;
   bannerUrl?: string | null;
+  avatarUrl?: string | null;
   tacticName: string;
   captain?: InventoryCard | null;
   managerCard?: InventoryCard | null;
@@ -22,44 +23,68 @@ export function createClubEmbed(params: {
   const score = calculateScore(params.squad);
 
   const managerStr = params.managerCard
-    ? `👔 **${params.managerCard.name}** (\`${params.managerCard.rating} MGR\`) — *${params.managerCard.club}*`
-    : "*No Head Coach Appointed (Sign in `/dailyshop` or `/pack`)*";
+    ? `**${params.managerCard.name}** (\`${params.managerCard.rating} MGR\`) — *${params.managerCard.club}*`
+    : "*No Head Coach Appointed*";
 
   const captainStr = params.captain
-    ? `⭐ **${params.captain.name}** (\`${params.captain.rating} ${params.captain.position}\`)`
-    : "*No Captain Appointed (Use `/captain`)*";
+    ? `**${params.captain.name}** (\`${params.captain.rating} ${params.captain.position}\`)`
+    : "*No Captain Appointed*";
 
   const embed = new EmbedBuilder()
     .setTitle(`${params.kitEmoji} ${params.clubName}`)
-    .setDescription(
-      (params.motto ? `*\"${params.motto}\"*\n` : "") +
-        `**Owner:** ${params.userName} • **Tactics:** \`${params.tacticName}\`\n` +
-        `**Head Coach:** ${managerStr}\n` +
-        `**Club Captain:** ${captainStr}`
-    )
     .setColor(0x3b82f6)
-    .addFields(
-      { name: "Treasury Coins", value: `💰 **${params.coins.toLocaleString()}**`, inline: true },
-      { name: "Club Valuation", value: `💎 **${params.clubValue.toLocaleString()}**`, inline: true },
-      { name: "Total Cards", value: `🃏 **${params.cardCount}**`, inline: true },
-      {
-        name: `Starting Lineup (Squad Rating: ${score.toFixed(1)} / 100)`,
-        value:
-          params.squad.players.length > 0
-            ? params.squad.players
-                .map((p) => `• **${p.name}** (${p.rating} ${p.position}) — *${p.club}*`)
-                .join("\n")
-            : "*No starting lineup configured. Use `/lineup` to set your 5.*",
-        inline: false,
-      },
-      {
-        name: `Synergy Links (+${totalBonus.toFixed(1)} pts)`,
-        value: synergies.length > 0 ? synergies.join("\n") : "*No active club/nation links*",
-        inline: false,
-      }
-    )
-    .setFooter({ text: "Use /lineup to configure Starting 5 & Head Coach • /tactic for playstyle" });
+    .setTimestamp();
 
+  if (params.avatarUrl) {
+    embed.setAuthor({ name: `${params.userName}'s Football Club`, iconURL: params.avatarUrl });
+  } else {
+    embed.setAuthor({ name: `${params.userName}'s Football Club` });
+  }
+
+  let desc = "";
+  if (params.motto) {
+    desc += `> *\"${params.motto}\"*\n\n`;
+  }
+  desc +=
+    `> 👔 **Head Coach:** ${managerStr}\n` +
+    `> ⭐ **Club Captain:** ${captainStr}\n` +
+    `> 🧠 **Active Playstyle:** \`${params.tacticName}\``;
+  embed.setDescription(desc);
+
+  const lineupStr =
+    params.squad.players.length > 0
+      ? params.squad.players
+          .map((p) => `• \`[${p.position}]\` **${p.name}** (\`${p.rating}\`) — *${p.club}* (*${p.nation}*)`)
+          .join("\n")
+      : "*No starting lineup configured. Use `/lineup` to set your Starting 5.*";
+
+  const synergyStr =
+    synergies.length > 0
+      ? synergies.map((s) => `> • ${s}`).join("\n")
+      : "*No active club or nation chemistry links.*";
+
+  embed.addFields(
+    {
+      name: "💎 Treasury & Club Value",
+      value:
+        `> • **Liquid Coins:** \`${params.coins.toLocaleString()} Coins\`\n` +
+        `> • **Club Valuation:** \`${params.clubValue.toLocaleString()} Coins\`\n` +
+        `> • **Locker Size:** \`${params.cardCount}/50 Cards\``,
+      inline: false,
+    },
+    {
+      name: `📋 Starting Lineup (Rating: ${score.toFixed(1)} / 100)`,
+      value: lineupStr,
+      inline: false,
+    },
+    {
+      name: `⚡ Synergy Chemistry (+${totalBonus.toFixed(1)} pts)`,
+      value: synergyStr,
+      inline: false,
+    }
+  );
+
+  embed.setFooter({ text: "Use /lineup to configure Starting 5 & Head Coach • /tactic for playstyle" });
   return embed;
 }
 

@@ -42,6 +42,46 @@ export interface PackOpenResult {
 }
 
 export class EconomyService {
+  private recentPacks = new Map<string, { cardIds: string[]; timestamp: number }>();
+
+  registerRecentPack(userId: string, cardIds: string[]): void {
+    this.recentPacks.set(userId, { cardIds, timestamp: Date.now() });
+  }
+
+  getRecentPack(userId: string): string[] | null {
+    const entry = this.recentPacks.get(userId);
+    if (!entry) return null;
+    if (Date.now() - entry.timestamp > 10 * 60 * 1000) {
+      this.recentPacks.delete(userId);
+      return null;
+    }
+    return entry.cardIds;
+  }
+
+  async quicksellRecentPack(userId: string): Promise<{
+    success: boolean;
+    message: string;
+    count: number;
+    totalCoins: number;
+    newBalance?: number;
+  }> {
+    const cardIds = this.getRecentPack(userId);
+    if (!cardIds || cardIds.length === 0) {
+      return {
+        success: false,
+        message: "❌ No recent pack cards found or the session expired. Use `/quicksell` to liquidate cards.",
+        count: 0,
+        totalCoins: 0,
+      };
+    }
+
+    const res = await this.quicksellMultipleCards(userId, cardIds);
+    if (res.success) {
+      this.recentPacks.delete(userId);
+    }
+    return res;
+  }
+
   async ensureUser(userId: string, userName?: string): Promise<User> {
     return prisma.user.upsert({
       where: { id: userId },
@@ -225,6 +265,7 @@ export class EconomyService {
       }
 
       const updatedUser = await tx.user.findUniqueOrThrow({ where: { id: userId } });
+      this.registerRecentPack(userId, pulledCards.map((c) => c.id));
 
       return {
         success: true,

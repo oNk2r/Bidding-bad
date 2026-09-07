@@ -111,3 +111,52 @@ export function createPenaltyKeeperButtons(gameId?: string): ActionRowBuilder<Bu
     new ButtonBuilder().setCustomId(`${prefix}RIGHT`).setLabel("Dive Right ➡️").setStyle(ButtonStyle.Primary)
   );
 }
+
+export function createPackActionButtons(
+  packType: "standard" | "premium",
+  canAffordAgain: boolean,
+  tradableCount: number,
+  packCost: number
+): ActionRowBuilder<ButtonBuilder> {
+  return new ActionRowBuilder<ButtonBuilder>().addComponents(
+    new ButtonBuilder()
+      .setCustomId(`pack_again_${packType}`)
+      .setLabel(`Open Again (${packCost.toLocaleString()} Coins)`)
+      .setStyle(ButtonStyle.Success)
+      .setEmoji("🔁")
+      .setDisabled(!canAffordAgain),
+    new ButtonBuilder()
+      .setCustomId(`pack_quicksell_recent`)
+      .setLabel(`Quick Sell Pack (${tradableCount} Cards)`)
+      .setStyle(ButtonStyle.Danger)
+      .setEmoji("💰")
+      .setDisabled(tradableCount === 0),
+    new ButtonBuilder()
+      .setCustomId("inventory_view_user")
+      .setLabel("My Inventory")
+      .setStyle(ButtonStyle.Secondary)
+      .setEmoji("🎒")
+  );
+}
+
+export function createProfileButtons(userId: string): ActionRowBuilder<ButtonBuilder> {
+  return new ActionRowBuilder<ButtonBuilder>().addComponents(
+    new ButtonBuilder()
+      .setCustomId(`profile_club_${userId}`)
+      .setLabel("Club Pitch")
+      .setStyle(ButtonStyle.Primary)
+      .setEmoji("🏟️"),
+    new ButtonBuilder()
+      .setCustomId(`inv_${userId}_1`)
+      .setLabel("Locker Cards")
+      .setStyle(ButtonStyle.Secondary)
+      .setEmoji("🃏"),
+    new ButtonBuilder()
+      .setCustomId(`profile_rivals_${userId}`)
+      .setLabel("Division Rivals")
+      .setStyle(ButtonStyle.Secondary)
+      .setEmoji("🏆")
+  );
+}
+
+
