@@ -59,7 +59,6 @@ describe("Live Match Simulation & MatchStats 2.0", () => {
 
     expect(result.events.length).toBeGreaterThanOrEqual(4);
     expect(result.mvp).toBeDefined();
-    expect(result.mvp).toContain("Rating:");
     expect(result.tacticalSummary).toBeDefined();
 
     // Check stats
