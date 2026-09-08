@@ -122,6 +122,11 @@ export function createMatchResultEmbed(
     .setColor(result.winner ? 0x22c55e : 0x3b82f6);
 
   if (stats) {
+    const homeRedText = stats.homeRedCards > 0 ? ` 🟥 ${stats.homeRedCards}` : "";
+    const awayRedText = stats.awayRedCards > 0 ? ` 🟥 ${stats.awayRedCards}` : "";
+    const passAccText = stats.homePassAccuracy ? `• **Pass Accuracy:** ${stats.homePassAccuracy}% - ${stats.awayPassAccuracy}%\n` : "";
+    const tacklesText = stats.homeTacklesWon !== undefined ? `• **Tackles Won:** ${stats.homeTacklesWon} - ${stats.awayTacklesWon}\n` : "";
+
     embed.addFields({
       name: "📊 Comprehensive Match Statistics",
       value:
@@ -129,8 +134,10 @@ export function createMatchResultEmbed(
         `• **Expected Goals (xG):** **${stats.homeXg.toFixed(2)}** - **${stats.awayXg.toFixed(2)}**\n` +
         `• **Total Shots:** **${stats.homeShots}** (${stats.homeShotsOnTarget} on target) - **${stats.awayShots}** (${stats.awayShotsOnTarget} on target)\n` +
         `• **Goalkeeper Saves:** **${stats.homeSaves}** - **${stats.awaySaves}**\n` +
+        passAccText +
+        tacklesText +
         `• **Corners & Fouls:** Corners: ${stats.homeCorners}-${stats.awayCorners} • Fouls: ${stats.homeFouls}-${stats.awayFouls}\n` +
-        `• **Discipline:** 🟨 ${stats.homeYellowCards} - ${stats.awayYellowCards} 🟨`,
+        `• **Discipline:** 🟨 ${stats.homeYellowCards}${homeRedText} - ${stats.awayYellowCards}${awayRedText} 🟨`,
       inline: false,
     });
   }
