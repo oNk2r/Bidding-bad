@@ -33,7 +33,7 @@ export function createLiveMatchEmbed(
   currentMinute: number,
   eventsSoFar: MatchEvent[],
   isHalfTime = false,
-  extraStats?: { homeXg?: number; awayXg?: number; homePossession?: number }
+  extraStats?: { homeXg?: number; awayXg?: number; homePossession?: number; homeRedCards?: number; awayRedCards?: number }
 ): EmbedBuilder {
   const statusText = isHalfTime
     ? "⏸️ HALF TIME"
@@ -41,13 +41,13 @@ export function createLiveMatchEmbed(
       ? "🏁 FULL TIME"
       : `⏱️ LIVE: ${currentMinute}'`;
 
-  const recentEvents = eventsSoFar.slice(-4).map((e) => e.commentary);
+  const recentEvents = eventsSoFar.map((e) => e.commentary);
 
   const homeCoach = home.headCoach ? `👔 *${home.headCoach}*` : `👤 *${home.managerName}*`;
   const awayCoach = away.headCoach ? `👔 *${away.headCoach}*` : `👤 *${away.managerName}*`;
 
-  const homeGoals = eventsSoFar.filter((e) => e.eventType === "GOAL" && e.team === "HOME");
-  const awayGoals = eventsSoFar.filter((e) => e.eventType === "GOAL" && e.team === "AWAY");
+  const homeGoals = eventsSoFar.filter((e) => (e.eventType === "GOAL" || e.eventType === "PENALTY") && e.team === "HOME");
+  const awayGoals = eventsSoFar.filter((e) => (e.eventType === "GOAL" || e.eventType === "PENALTY") && e.team === "AWAY");
 
   let scorersSummary = "";
   if (homeGoals.length > 0 || awayGoals.length > 0) {
@@ -59,18 +59,21 @@ export function createLiveMatchEmbed(
   const poss = extraStats?.homePossession || 50;
   const momentumBar = buildProgressBar(poss, 8);
 
+  const homeRedTag = (extraStats?.homeRedCards || 0) > 0 ? ` 🟥 *(${extraStats?.homeRedCards} Red)*` : "";
+  const awayRedTag = (extraStats?.awayRedCards || 0) > 0 ? ` 🟥 *(${extraStats?.awayRedCards} Red)*` : "";
+
   const embed = new EmbedBuilder()
-    .setTitle(`⚽ ${home.kitEmoji} ${home.clubName} ${homeScore} - ${awayScore} ${away.kitEmoji} ${away.clubName}`)
+    .setTitle(`⚽ ${home.kitEmoji} ${home.clubName}${homeRedTag} ${homeScore} - ${awayScore} ${away.kitEmoji} ${away.clubName}${awayRedTag}`)
     .setDescription(
       `**Match Status:** \`${statusText}\`\n` +
       `**Momentum:** \`${home.clubName}\` ${momentumBar} \`${away.clubName}\` (${poss}% - ${100 - poss}%)\n` +
       `**Benches:** ${homeCoach} vs ${awayCoach}\n` +
       scorersSummary +
-      `\n**Live Match Timeline:**\n` +
+      `\n**Live Match Highlights:**\n` +
       (recentEvents.length > 0 ? recentEvents.join("\n") : "*Kickoff whistle blown! Ball in play.*")
     )
-    .setColor(isHalfTime ? 0xf59e0b : 0x22c55e)
-    .setFooter({ text: "Simulated live with tactical playstyles, coach leadership, and player ratings" });
+    .setColor(isHalfTime ? 0xf59e0b : currentMinute >= 90 ? 0x3b82f6 : 0x22c55e)
+    .setFooter({ text: "Simulated live with dynamic match engine, player duels, and tactical systems" });
 
   return embed;
 }
@@ -95,8 +98,8 @@ export function createMatchResultEmbed(
   }
 
   // Goalscorers listing
-  const hScorers = result.homeGoalScorers.map((g) => `• **${g.name}** ${g.minute}'${g.assist ? ` *(Ast: ${g.assist})*` : ""}`);
-  const aScorers = result.awayGoalScorers.map((g) => `• **${g.name}** ${g.minute}'${g.assist ? ` *(Ast: ${g.assist})*` : ""}`);
+  const hScorers = result.homeGoalScorers.map((g) => `• **${g.name}** ${g.minute}'${g.assist ? ` *(Ast: ${g.assist})*` : ""}${g.type === "PENALTY" ? " *(Pen)*" : ""}`);
+  const aScorers = result.awayGoalScorers.map((g) => `• **${g.name}** ${g.minute}'${g.assist ? ` *(Ast: ${g.assist})*` : ""}${g.type === "PENALTY" ? " *(Pen)*" : ""}`);
 
   let goalText = "";
   if (hScorers.length > 0 || aScorers.length > 0) {
@@ -105,7 +108,13 @@ export function createMatchResultEmbed(
       `**${result.away.clubName}:** ${aScorers.length > 0 ? aScorers.join(", ") : "*None*"}\n`;
   }
 
-  const allEventLines = result.events.slice(-6).map((e) => e.commentary);
+  // Filter significant events for highlights reel
+  const keyEvents = result.events.filter(
+    (e) => e.eventType === "GOAL" || e.eventType === "PENALTY" || e.eventType === "SAVE" || e.eventType === "RED_CARD" || e.eventType === "VAR_DECISION" || e.eventType === "WOODWORK"
+  );
+  const displayEvents = keyEvents.length >= 4 ? keyEvents.slice(-6) : result.events.slice(-6);
+  const allEventLines = displayEvents.map((e) => e.commentary);
+
   const stats = result.stats;
   const momentumBar = stats ? buildProgressBar(stats.homePossession, 10) : "";
 
@@ -116,7 +125,7 @@ export function createMatchResultEmbed(
         goalText +
         `\n⭐ **Player of the Match:** **${result.mvp}**\n` +
         `🧠 **Tactical Breakdown:** ${result.tacticalSummary}\n\n` +
-        `**Key Highlights:**\n` +
+        `**Key Match Highlights:**\n` +
         (allEventLines.length > 0 ? allEventLines.join("\n") : "*Clean, disciplined contest.*")
     )
     .setColor(result.winner ? 0x22c55e : 0x3b82f6);
@@ -126,6 +135,7 @@ export function createMatchResultEmbed(
     const awayRedText = stats.awayRedCards > 0 ? ` 🟥 ${stats.awayRedCards}` : "";
     const passAccText = stats.homePassAccuracy ? `• **Pass Accuracy:** ${stats.homePassAccuracy}% - ${stats.awayPassAccuracy}%\n` : "";
     const tacklesText = stats.homeTacklesWon !== undefined ? `• **Tackles Won:** ${stats.homeTacklesWon} - ${stats.awayTacklesWon}\n` : "";
+    const bigChancesText = stats.homeBigChances !== undefined ? `• **Big Chances Created:** ${stats.homeBigChances} - ${stats.awayBigChances}\n` : "";
 
     embed.addFields({
       name: "📊 Comprehensive Match Statistics",
@@ -133,6 +143,7 @@ export function createMatchResultEmbed(
         `• **Possession:** ${result.home.clubName} **${stats.homePossession}%** ${momentumBar} **${stats.awayPossession}%** ${result.away.clubName}\n` +
         `• **Expected Goals (xG):** **${stats.homeXg.toFixed(2)}** - **${stats.awayXg.toFixed(2)}**\n` +
         `• **Total Shots:** **${stats.homeShots}** (${stats.homeShotsOnTarget} on target) - **${stats.awayShots}** (${stats.awayShotsOnTarget} on target)\n` +
+        bigChancesText +
         `• **Goalkeeper Saves:** **${stats.homeSaves}** - **${stats.awaySaves}**\n` +
         passAccText +
         tacklesText +
@@ -154,3 +165,4 @@ export function createMatchResultEmbed(
 
   return embed;
 }
+

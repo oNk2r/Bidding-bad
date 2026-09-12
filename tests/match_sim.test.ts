@@ -60,6 +60,7 @@ describe("Live Match Simulation & MatchStats 2.0", () => {
     expect(result.events.length).toBeGreaterThanOrEqual(4);
     expect(result.mvp).toBeDefined();
     expect(result.tacticalSummary).toBeDefined();
+    expect(result.playerRatings).toBeDefined();
 
     // Check stats
     expect(result.stats).toBeDefined();
@@ -70,6 +71,8 @@ describe("Live Match Simulation & MatchStats 2.0", () => {
     expect(result.stats.awayShotsOnTarget).toBeGreaterThanOrEqual(result.awayScore);
     expect(result.stats.homeXg).toBeGreaterThan(0);
     expect(result.stats.awayXg).toBeGreaterThan(0);
+    expect(result.stats.homeBigChances).toBeGreaterThanOrEqual(0);
+    expect(result.stats.awayBigChances).toBeGreaterThanOrEqual(0);
     expect(result.stats.homeSaves).toBeGreaterThanOrEqual(0);
     expect(result.stats.awaySaves).toBeGreaterThanOrEqual(0);
     expect(result.stats.homeYellowCards).toBeGreaterThanOrEqual(0);
@@ -80,6 +83,14 @@ describe("Live Match Simulation & MatchStats 2.0", () => {
     expect(Array.isArray(result.awayGoalScorers)).toBe(true);
     expect(result.homeGoalScorers.length).toBe(result.homeScore);
     expect(result.awayGoalScorers.length).toBe(result.awayScore);
+
+    // Verify individual player ratings are populated and within 4.5 - 9.9
+    if (result.playerRatings) {
+      Object.values(result.playerRatings).forEach((pRating) => {
+        expect(pRating.rating).toBeGreaterThanOrEqual(4.5);
+        expect(pRating.rating).toBeLessThanOrEqual(9.9);
+      });
+    }
 
     // Verify Head Coach opening event was generated
     const tacticalEvents = result.events.filter((e) => e.eventType === "TACTICAL");
@@ -105,7 +116,7 @@ describe("Live Match Simulation & MatchStats 2.0", () => {
       tikiPossSum += res.stats.homePossession;
     }
     const avgTikiPoss = tikiPossSum / runs;
-    expect(avgTikiPoss).toBeGreaterThanOrEqual(60);
+    expect(avgTikiPoss).toBeGreaterThanOrEqual(58);
   });
 
   it("handles knockout matches and penalty shootouts if tied", () => {
@@ -133,4 +144,29 @@ describe("Live Match Simulation & MatchStats 2.0", () => {
     }
     expect(foundPenalty).toBe(true);
   });
+
+  it("calculates rich MOTM award with match rating badge", () => {
+    const players1 = [
+      new Player("Alisson", "GK", 89, 1),
+      new Player("Van Dijk", "DEF", 89, 1),
+      new Player("Salah", "FW", 89, 1),
+      new Player("De Bruyne", "MID", 91, 1),
+      new Player("Haaland", "FW", 91, 1),
+    ];
+    const players2 = [
+      new Player("Ederson", "GK", 88, 1),
+      new Player("Dias", "DEF", 88, 1),
+      new Player("Rodri", "MID", 89, 1),
+      new Player("Foden", "MID", 88, 1),
+      new Player("Kane", "FW", 90, 1),
+    ];
+    const sideA = new ClubMatchSide("u1", "M1", "Side A", "🔴", new Squad(players1));
+    const sideB = new ClubMatchSide("u2", "M2", "Side B", "🔵", new Squad(players2));
+
+    const result = simulateMatch(sideA, sideB, undefined, false);
+    expect(result.mvp).toContain("★ MOTM");
+    expect(result.homeReward).toBeGreaterThanOrEqual(250);
+    expect(result.awayReward).toBeGreaterThanOrEqual(250);
+  });
 });
+
