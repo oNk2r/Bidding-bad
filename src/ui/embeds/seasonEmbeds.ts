@@ -8,7 +8,8 @@ export function createSeasonPassEmbed(
   sxp: number,
   currentLevel: number,
   claimedLevels: number[],
-  nextTier?: SeasonTier
+  nextTier?: SeasonTier,
+  seasonNumber = 1
 ): EmbedBuilder {
   const nextTarget = nextTier ? nextTier.sxpRequired : 11000;
   const progressPercent = Math.min(100, Math.floor((sxp / nextTarget) * 100));
@@ -19,7 +20,7 @@ export function createSeasonPassEmbed(
   const progressBar = "█".repeat(filledBlocks) + "░".repeat(totalBlocks - filledBlocks);
 
   const embed = new EmbedBuilder()
-    .setTitle(`🌟 Season 1 Pass — Manager **${userName}**`)
+    .setTitle(`🌟 Season ${seasonNumber} Pass — Manager **${userName}**`)
     .setDescription(
       `**Level:** **${currentLevel} / 15**\n` +
         `**Season XP (SXP):** 🌟 **${sxp.toLocaleString()} SXP**\n` +

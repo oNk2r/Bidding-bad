@@ -19,7 +19,38 @@ export const marketCommand: Command = {
       opt.setName("page").setDescription("Page number").setRequired(false)
     )
     .addStringOption((opt) =>
-      opt.setName("search").setDescription("Search by player name, club, or position").setRequired(false)
+      opt.setName("search").setDescription("Search by player name or club").setRequired(false)
+    )
+    .addStringOption((opt) =>
+      opt
+        .setName("position")
+        .setDescription("Filter by card position")
+        .setRequired(false)
+        .addChoices(
+          { name: "GK — Goalkeeper", value: "GK" },
+          { name: "DEF — Defender", value: "DEF" },
+          { name: "MID — Midfielder", value: "MID" },
+          { name: "FW — Forward", value: "FW" },
+          { name: "MGR — Manager", value: "MGR" }
+        )
+    )
+    .addIntegerOption((opt) =>
+      opt.setName("min_rating").setDescription("Minimum card rating (e.g. 85)").setRequired(false)
+    )
+    .addIntegerOption((opt) =>
+      opt.setName("max_price").setDescription("Maximum coin price (e.g. 50000)").setRequired(false)
+    )
+    .addStringOption((opt) =>
+      opt
+        .setName("sort")
+        .setDescription("Sort market listings")
+        .setRequired(false)
+        .addChoices(
+          { name: "Price: Low to High", value: "PRICE_ASC" },
+          { name: "Price: High to Low", value: "PRICE_DESC" },
+          { name: "Rating: High to Low", value: "RATING_DESC" },
+          { name: "Newest Listings First", value: "NEWEST" }
+        )
     ),
 
   async execute(interaction: ChatInputCommandInteraction) {
@@ -27,8 +58,18 @@ export const marketCommand: Command = {
 
     const page = Math.max(1, interaction.options.getInteger("page") || 1);
     const search = interaction.options.getString("search") || undefined;
+    const position = interaction.options.getString("position") || undefined;
+    const minRating = interaction.options.getInteger("min_rating") || undefined;
+    const maxPrice = interaction.options.getInteger("max_price") || undefined;
+    const sortBy = (interaction.options.getString("sort") as any) || undefined;
 
-    const { listings, total, totalPages } = await marketService.getListings(page, 5, search);
+    const { listings, total, totalPages } = await marketService.getListings(page, 5, {
+      search,
+      position,
+      minRating,
+      maxPrice,
+      sortBy,
+    });
     const safePage = Math.min(page, Math.max(1, totalPages));
 
     const embed = createMarketEmbed(listings, safePage, totalPages, total);

@@ -25,6 +25,15 @@ describe("Market Listing Cancellation & Command Registry", () => {
   it("has valid metadata for buy and market commands", () => {
     expect(buyCommand.data.name).toBe("buy");
     expect(marketCommand.data.name).toBe("market");
+
+    const buyJson = buyCommand.data.toJSON();
+    expect(buyJson.options?.some((opt: any) => opt.name === "listing_id" && opt.autocomplete === true)).toBe(true);
+
+    const mktJson = marketCommand.data.toJSON();
+    expect(mktJson.options?.some((opt: any) => opt.name === "position")).toBe(true);
+    expect(mktJson.options?.some((opt: any) => opt.name === "min_rating")).toBe(true);
+    expect(mktJson.options?.some((opt: any) => opt.name === "max_price")).toBe(true);
+    expect(mktJson.options?.some((opt: any) => opt.name === "sort")).toBe(true);
   });
 
   it("rejects cancelling a non-existent market listing", async () => {
@@ -114,5 +123,54 @@ describe("Market Listing Cancellation & Command Registry", () => {
     expect(res.restoredCard?.name).toBe("Rodri");
     expect(createMock).toHaveBeenCalledTimes(1);
     expect(deleteMock).toHaveBeenCalledWith({ where: { id: "listing_100" } });
+  });
+
+  it("filters and sorts listings in marketService.getListings", async () => {
+    vi.spyOn(prisma.marketListing, "findMany").mockResolvedValue([
+      {
+        id: "l1",
+        sellerId: "u1",
+        sellerName: "Manager 1",
+        price: 5000,
+        cardData: JSON.stringify({ name: "Mbappe", position: "FW", rating: 92, club: "Real Madrid", nation: "France", value: 3000 }),
+        createdAt: new Date("2026-09-01"),
+      },
+      {
+        id: "l2",
+        sellerId: "u2",
+        sellerName: "Manager 2",
+        price: 2000,
+        cardData: JSON.stringify({ name: "Rodri", position: "MID", rating: 90, club: "Man City", nation: "Spain", value: 2000 }),
+        createdAt: new Date("2026-09-02"),
+      },
+      {
+        id: "l3",
+        sellerId: "u3",
+        sellerName: "Manager 3",
+        price: 800,
+        cardData: JSON.stringify({ name: "Alisson", position: "GK", rating: 89, club: "Liverpool", nation: "Brazil", value: 1500 }),
+        createdAt: new Date("2026-09-03"),
+      },
+    ] as any);
+
+    // 1. Filter by position MID
+    const midRes = await marketService.getListings(1, 10, { position: "MID" });
+    expect(midRes.total).toBe(1);
+    expect(midRes.listings[0].card.name).toBe("Rodri");
+
+    // 2. Filter by minRating 91
+    const ratingRes = await marketService.getListings(1, 10, { minRating: 91 });
+    expect(ratingRes.total).toBe(1);
+    expect(ratingRes.listings[0].card.name).toBe("Mbappe");
+
+    // 3. Sort by PRICE_ASC
+    const priceAscRes = await marketService.getListings(1, 10, { sortBy: "PRICE_ASC" });
+    expect(priceAscRes.listings[0].price).toBe(800);
+    expect(priceAscRes.listings[2].price).toBe(5000);
+
+    // 4. Exclude seller
+    const excludeRes = await marketService.getListings(1, 10, { excludeSellerId: "u1" });
+    expect(excludeRes.total).toBe(2);
+    expect(excludeRes.listings.every((l) => l.sellerId !== "u1")).toBe(true);
   });
 });

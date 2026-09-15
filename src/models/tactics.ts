@@ -132,3 +132,41 @@ export function calculateTacticalMatchup(
     matchupNarrative: `Tactical Clash: ${homeTactic.name} vs ${awayTactic.name}`,
   };
 }
+
+export const MANAGER_SIGNATURE_TACTICS: Record<string, TacticType> = {
+  "pep guardiola": TacticType.TIKI_TAKA,
+  "sir alex ferguson": TacticType.COUNTER_ATTACK,
+  "jürgen klopp": TacticType.GEGENPRESS,
+  "jurgen klopp": TacticType.GEGENPRESS,
+  "josé mourinho": TacticType.PARK_THE_BUS,
+  "jose mourinho": TacticType.PARK_THE_BUS,
+  "carlo ancelotti": TacticType.BALANCED,
+  "zinedine zidane": TacticType.BALANCED,
+  "mikel arteta": TacticType.TIKI_TAKA,
+  "xabi alonso": TacticType.TIKI_TAKA,
+  "hansi flick": TacticType.GEGENPRESS,
+  "diego simeone": TacticType.PARK_THE_BUS,
+  "lionel scaloni": TacticType.BALANCED,
+  "arsène wenger": TacticType.TIKI_TAKA,
+  "arsene wenger": TacticType.TIKI_TAKA,
+  "luis enrique": TacticType.TIKI_TAKA,
+  "simone inzaghi": TacticType.COUNTER_ATTACK,
+  "antonio conte": TacticType.COUNTER_ATTACK,
+  "unai emery": TacticType.COUNTER_ATTACK,
+  "arne slot": TacticType.GEGENPRESS,
+  "julian nagelsmann": TacticType.GEGENPRESS,
+  "arrigo sacchi": TacticType.PARK_THE_BUS,
+  "johan cruyff": TacticType.TIKI_TAKA,
+};
+
+export function getManagerSignatureTactic(managerName?: string | null): TacticType {
+  if (!managerName) return TacticType.BALANCED;
+  const clean = managerName.trim().toLowerCase();
+  for (const [key, tactic] of Object.entries(MANAGER_SIGNATURE_TACTICS)) {
+    if (clean.includes(key)) {
+      return tactic;
+    }
+  }
+  return TacticType.BALANCED;
+}
+

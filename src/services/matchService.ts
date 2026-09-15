@@ -170,7 +170,13 @@ export class MatchService {
       stadium.tierInfo.homeMoraleBuff,
       getTacticInfo(user.tactic),
       false,
-      headCoachName
+      headCoachName,
+      managerCard ? {
+        name: managerCard.name,
+        club: managerCard.club,
+        nation: managerCard.nation,
+        rating: managerCard.rating,
+      } : null
     );
   }
 

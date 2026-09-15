@@ -10,6 +10,10 @@ const __dirname = path.dirname(__filename);
 export class PlayerService {
   private players: Player[] = [];
   private managers: Player[] = [];
+  private allEntities: Player[] = [];
+  private playerByName: Map<string, Player> = new Map();
+  private playersByRating: Map<number, Player[]> = new Map();
+  private managersByRating: Map<number, Player[]> = new Map();
 
   constructor() {
     this.loadData();
@@ -18,6 +22,43 @@ export class PlayerService {
   private loadData(): void {
     this.loadPlayers();
     this.loadManagers();
+    this.buildIndexes();
+  }
+
+  private buildIndexes(): void {
+    this.allEntities = [...this.players, ...this.managers];
+    this.playerByName.clear();
+    this.playersByRating.clear();
+    this.managersByRating.clear();
+
+    // 1. Build exact name lookup (O(1))
+    // Index footballers first, then managers
+    for (const p of this.players) {
+      const key = p.name.trim().toLowerCase();
+      if (!this.playerByName.has(key)) {
+        this.playerByName.set(key, p);
+      }
+
+      // Group by rating bucket
+      let bucket = this.playersByRating.get(p.rating);
+      if (!bucket) {
+        bucket = [];
+        this.playersByRating.set(p.rating, bucket);
+      }
+      bucket.push(p);
+    }
+
+    for (const m of this.managers) {
+      const key = m.name.trim().toLowerCase();
+      this.playerByName.set(key, m);
+
+      let bucket = this.managersByRating.get(m.rating);
+      if (!bucket) {
+        bucket = [];
+        this.managersByRating.set(m.rating, bucket);
+      }
+      bucket.push(m);
+    }
   }
 
   private loadPlayers(): void {
@@ -105,7 +146,7 @@ export class PlayerService {
   }
 
   getAllEntities(): Player[] {
-    return [...this.players, ...this.managers];
+    return this.allEntities;
   }
 
   getPlayersByPosition(position: Position): Player[] {
@@ -115,9 +156,12 @@ export class PlayerService {
 
   findPlayerByName(name: string): Player | undefined {
     const clean = name.trim().toLowerCase();
-    return this.getAllEntities().find(
-      (p) => p.name.toLowerCase() === clean || p.name.toLowerCase().includes(clean)
-    );
+    // 1. O(1) exact map lookup
+    const exact = this.playerByName.get(clean);
+    if (exact) return exact;
+
+    // 2. Substring fallback across cached allEntities
+    return this.allEntities.find((p) => p.name.toLowerCase().includes(clean));
   }
 
   getPlayerByName(name: string): Player | undefined {
@@ -126,32 +170,50 @@ export class PlayerService {
 
   searchPlayers(query: string, limit = 25): Player[] {
     const clean = query.trim().toLowerCase();
-    const pool = this.getAllEntities();
-    if (!clean) return pool.slice(0, limit);
-    return pool
+    if (!clean) return this.allEntities.slice(0, limit);
+    return this.allEntities
       .filter((p) => p.name.toLowerCase().includes(clean) || p.club.toLowerCase().includes(clean))
       .slice(0, limit);
   }
 
   getRandomPlayer(ratingRange?: { min?: number; max?: number }): Player {
-    let pool = this.players;
-    if (ratingRange) {
-      const min = ratingRange.min ?? 0;
-      const max = ratingRange.max ?? 100;
-      pool = pool.filter((p) => p.rating >= min && p.rating <= max);
+    if (!ratingRange || (ratingRange.min === undefined && ratingRange.max === undefined)) {
+      return this.players[Math.floor(Math.random() * this.players.length)];
     }
-    if (pool.length === 0) pool = this.players;
+
+    const min = ratingRange.min ?? 0;
+    const max = ratingRange.max ?? 100;
+
+    // Use pre-indexed rating buckets
+    const pool: Player[] = [];
+    for (let r = min; r <= max; r++) {
+      const bucket = this.playersByRating.get(r);
+      if (bucket) {
+        pool.push(...bucket);
+      }
+    }
+
+    if (pool.length === 0) return this.players[Math.floor(Math.random() * this.players.length)];
     return pool[Math.floor(Math.random() * pool.length)];
   }
 
   getRandomManager(ratingRange?: { min?: number; max?: number }): Player {
-    let pool = this.managers;
-    if (ratingRange) {
-      const min = ratingRange.min ?? 0;
-      const max = ratingRange.max ?? 100;
-      pool = pool.filter((m) => m.rating >= min && m.rating <= max);
+    if (!ratingRange || (ratingRange.min === undefined && ratingRange.max === undefined)) {
+      return this.managers[Math.floor(Math.random() * this.managers.length)];
     }
-    if (pool.length === 0) pool = this.managers;
+
+    const min = ratingRange.min ?? 0;
+    const max = ratingRange.max ?? 100;
+
+    const pool: Player[] = [];
+    for (let r = min; r <= max; r++) {
+      const bucket = this.managersByRating.get(r);
+      if (bucket) {
+        pool.push(...bucket);
+      }
+    }
+
+    if (pool.length === 0) return this.managers[Math.floor(Math.random() * this.managers.length)];
     return pool[Math.floor(Math.random() * pool.length)];
   }
 }

@@ -581,7 +581,8 @@ export async function onInteractionCreate(interaction: Interaction): Promise<voi
         profile.sxp,
         profile.currentLevel,
         profile.claimedLevels,
-        profile.nextTier
+        profile.nextTier,
+        profile.seasonNumber
       );
 
       const unclaimedTier = SEASON_TIERS.find(
@@ -632,7 +633,8 @@ export async function onInteractionCreate(interaction: Interaction): Promise<voi
         updatedProfile.sxp,
         updatedProfile.currentLevel,
         updatedProfile.claimedLevels,
-        updatedProfile.nextTier
+        updatedProfile.nextTier,
+        updatedProfile.seasonNumber
       );
 
       await interaction.editReply({

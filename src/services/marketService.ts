@@ -15,6 +15,15 @@ export interface ListedCardData {
   tierBadge?: string;
 }
 
+export interface MarketFilters {
+  search?: string;
+  position?: string;
+  minRating?: number;
+  maxPrice?: number;
+  sortBy?: "PRICE_ASC" | "PRICE_DESC" | "RATING_DESC" | "NEWEST";
+  excludeSellerId?: string;
+}
+
 export class MarketService {
   async listCard(
     userId: string,
@@ -215,8 +224,11 @@ export class MarketService {
   async getListings(
     page = 1,
     limit = 10,
-    search?: string
+    searchOrFilters?: string | MarketFilters
   ): Promise<{ listings: (MarketListing & { card: ListedCardData })[]; total: number; totalPages: number }> {
+    const filters: MarketFilters =
+      typeof searchOrFilters === "string" ? { search: searchOrFilters } : searchOrFilters || {};
+
     const skip = (page - 1) * limit;
 
     const all = await prisma.marketListing.findMany({
@@ -228,14 +240,41 @@ export class MarketService {
       card: JSON.parse(l.cardData) as ListedCardData,
     }));
 
-    if (search) {
-      const q = search.toLowerCase();
+    if (filters.excludeSellerId) {
+      filtered = filtered.filter((l) => l.sellerId !== filters.excludeSellerId);
+    }
+
+    if (filters.search) {
+      const q = filters.search.toLowerCase();
       filtered = filtered.filter(
         (l) =>
           l.card.name.toLowerCase().includes(q) ||
           l.card.club.toLowerCase().includes(q) ||
           l.card.position.toLowerCase() === q
       );
+    }
+
+    if (filters.position) {
+      const pos = filters.position.toUpperCase();
+      filtered = filtered.filter((l) => l.card.position === pos);
+    }
+
+    if (filters.minRating !== undefined) {
+      filtered = filtered.filter((l) => l.card.rating >= filters.minRating!);
+    }
+
+    if (filters.maxPrice !== undefined) {
+      filtered = filtered.filter((l) => l.price <= filters.maxPrice!);
+    }
+
+    if (filters.sortBy === "PRICE_ASC") {
+      filtered.sort((a, b) => a.price - b.price);
+    } else if (filters.sortBy === "PRICE_DESC") {
+      filtered.sort((a, b) => b.price - a.price);
+    } else if (filters.sortBy === "RATING_DESC") {
+      filtered.sort((a, b) => b.card.rating - a.card.rating);
+    } else if (filters.sortBy === "NEWEST") {
+      filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     }
 
     const total = filtered.length;

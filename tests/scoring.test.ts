@@ -54,4 +54,40 @@ describe("Scoring and Chemistry Synergies", () => {
     // Total raw: 90.0 + 0.8 + 4.0 = 94.8
     expect(score).toBe(94.8);
   });
+
+  it("calculates manager club link and tactical harmony synergies", () => {
+    const squad = new Squad([
+      new Player("Ederson", "GK", 88, 4, 0, "Man City", "Brazil"),
+      new Player("Ruben Dias", "DEF", 88, 4, 0, "Man City", "Portugal"),
+      new Player("Rodri", "MID", 90, 5, 0, "Man City", "Spain"),
+      new Player("De Bruyne", "MID", 91, 5, 0, "Man City", "Belgium"),
+      new Player("Haaland", "FW", 91, 5, 0, "Man City", "Norway"),
+    ]);
+
+    // Manager Pep Guardiola: Man City, Spain, preferred tactic TIKI_TAKA
+    const pep = {
+      name: "Pep Guardiola",
+      club: "Manchester City",
+      nation: "Spain",
+      rating: 94,
+    };
+
+    // 1. Without manager:
+    // 5 Man City players: 1.0 * (5 - 1) = 4.0 pts
+    const withoutMgr = getChemistryBreakdown(squad);
+    expect(withoutMgr.totalBonus).toBe(4.0);
+
+    // 2. With Pep + TIKI_TAKA tactic:
+    // Pep's nation Spain + Rodri (Spain) = 2 Spain link = +0.5 pts
+    // Pep's signature tactic TIKI_TAKA matching team tactic = +1.0 pts
+    // Total chemistry bonus: 4.0 + 0.5 + 1.0 = 5.5 pts!
+    const withPep = getChemistryBreakdown(squad, pep, "TIKI_TAKA");
+    expect(withPep.totalBonus).toBe(5.5);
+    expect(withPep.synergies.some((s) => s.includes("Tactical Harmony: Pep Guardiola"))).toBe(true);
+    expect(withPep.synergies.some((s) => s.includes("Spain Link"))).toBe(true);
+
+    const score = calculateScore(squad, pep, "TIKI_TAKA");
+    expect(score).toBeGreaterThan(calculateScore(squad));
+  });
 });
+

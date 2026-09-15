@@ -39,7 +39,8 @@ export const seasonCommand: Command = {
       profile.sxp,
       profile.currentLevel,
       profile.claimedLevels,
-      profile.nextTier
+      profile.nextTier,
+      profile.seasonNumber
     );
 
     // Find first unclaimed tier that is unlocked

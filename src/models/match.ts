@@ -97,7 +97,8 @@ export class ClubMatchSide {
     stadiumBonus = 0.0,
     tactic?: TacticInfo,
     isBot = false,
-    headCoach?: string | null
+    headCoach?: string | null,
+    managerCard?: { name: string; club?: string; nation?: string; rating?: number } | null
   ) {
     this.userId = userId;
     this.managerName = managerName;
@@ -107,10 +108,11 @@ export class ClubMatchSide {
     this.stadiumBonus = stadiumBonus;
     this.tactic = tactic || getTacticInfo(TacticType.BALANCED);
     this.isBot = isBot;
-    this.headCoach = headCoach;
+    this.headCoach = headCoach || managerCard?.name || null;
 
-    this.squadScore = calculateScore(this.squad);
-    const { totalBonus } = getChemistryBreakdown(this.squad);
+    const mgr = managerCard || (this.headCoach ? { name: this.headCoach } : null);
+    this.squadScore = calculateScore(this.squad, mgr, this.tactic.tacticType);
+    const { totalBonus } = getChemistryBreakdown(this.squad, mgr, this.tactic.tacticType);
     this.chemistryBonus = totalBonus;
   }
 
