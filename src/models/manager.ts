@@ -45,6 +45,7 @@ export interface ManagerProfile {
   motto: string | null;
   tournamentsWon: number;
   rp: number;
+  partyRecord?: string;
 }
 
 export function determineManagerRoles(stats?: ManagerStatsData | null): string[] {

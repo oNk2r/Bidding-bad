@@ -1,0 +1,62 @@
+import type { PartyCategory } from "../types.js";
+
+export const cricketCategory: PartyCategory = {
+  id: "cricket",
+  name: "Cricket",
+  emoji: "🏏",
+  description: "Cricket icons, explosive power-hitters, swinging demons, and captaincy legends.",
+  scenarios: [
+    {
+      id: "super_over_final",
+      title: "Win the World Cup Super Over (Defend 12 Runs or Chase 15)",
+      description: "Pick 5 clutch players for the most nerve-wracking single over in cricket history.",
+      emoji: "⚡",
+    },
+    {
+      id: "waca_bouncy_pitch",
+      title: "Survive a Fiery Spell at the WACA on Day 5",
+      description: "Fast chin music, bodyline bouncers, and cracked turf.",
+      emoji: "🛡️",
+    },
+    {
+      id: "gabba_fortress",
+      title: "Breach the Gabba Fortress Against Prime Australia",
+      description: "Patience, grit, and fearless young guns to chase down the unchaseable.",
+      emoji: "🏰",
+    },
+    {
+      id: "ipl_mega_auction",
+      title: "Build the Ultimate IPL T20 Franchise",
+      description: "Big six hitters, mystery spinners, and death-over yorker machines.",
+      emoji: "💰",
+    },
+    {
+      id: "cricket_sledge_fest",
+      title: "Win the Mind Game Sledge War in the Ashes",
+      description: "5 masters of psychological warfare, banter behind the stumps, and mental disintegration.",
+      emoji: "🗣️",
+    },
+  ],
+  items: [
+    { id: "virat_kohli", name: "Virat Kohli", category: "cricket", tags: ["chase_master", "king", "aggression", "india", "fitness"] },
+    { id: "ms_dhoni", name: "MS Dhoni", category: "cricket", tags: ["captain_cool", "finisher", "helicopter", "keeper", "india"] },
+    { id: "sachin_tendulkar", name: "Sachin Tendulkar", category: "cricket", tags: ["god_of_cricket", "technique", "legend", "india"] },
+    { id: "rohit_sharma", name: "Rohit Sharma", category: "cricket", tags: ["hitman", "double_centuries", "pull_shot", "captain", "india"] },
+    { id: "ben_stokes", name: "Ben Stokes", category: "cricket", tags: ["all_rounder", "clutch", "headingley", "england", "bazball"] },
+    { id: "pat_cummins", name: "Pat Cummins", category: "cricket", tags: ["captain", "fast_bowler", "silence_crowd", "australia"] },
+    { id: "shane_warne", name: "Shane Warne", category: "cricket", tags: ["spin_king", "ball_of_century", "party_animal", "australia"] },
+    { id: "viv_richards", name: "Sir Viv Richards", category: "cricket", tags: ["swagger", "no_helmet", "destructive", "west_indies"] },
+    { id: "wasim_akram", name: "Wasim Akram", category: "cricket", tags: ["swing_sultan", "yorker", "reverse_swing", "pakistan"] },
+    { id: "jasprit_bumrah", name: "Jasprit Bumrah", category: "cricket", tags: ["death_bowler", "yorker", "unique_action", "india"] },
+    { id: "ab_de_villiers", name: "AB de Villiers (Mr. 360)", category: "cricket", tags: ["360_degree", "innovator", "alien", "south_africa"] },
+    { id: "chris_gayle", name: "Chris Gayle (Universe Boss)", category: "cricket", tags: ["six_machine", "party_king", "cool", "west_indies"] },
+    { id: "shoaib_akhtar", name: "Shoaib Akhtar (Rawalpindi Express)", category: "cricket", tags: ["100mph", "fastest", "bouncers", "pakistan"] },
+    { id: "steve_smith", name: "Steve Smith", category: "cricket", tags: ["quirky", "ashes_hero", "batting_genius", "australia"] },
+    { id: "mitchell_starc", name: "Mitchell Starc", category: "cricket", tags: ["inswinging_yorker", "world_cup_beast", "australia"] },
+    { id: "lasith_malinga", name: "Lasith Malinga", category: "cricket", tags: ["slinga", "toe_crusher", "sri_lanka", "death_overs"] },
+    { id: "kane_williamson", name: "Kane Williamson", category: "cricket", tags: ["gentleman", "clutch", "calm", "new_zealand"] },
+    { id: "glenn_maxwell", name: "Glenn Maxwell (Big Show)", category: "cricket", tags: ["reverse_sweep", "chaotic", "201_on_one_leg", "australia"] },
+    { id: "yuvraj_singh", name: "Yuvraj Singh", category: "cricket", tags: ["six_sixes", "fighter", "world_cup_hero", "india"] },
+    { id: "mutthiah_muralitharan", name: "Muttiah Muralitharan", category: "cricket", tags: ["800_wickets", "doosra", "eyes", "sri_lanka"] },
+  ],
+};

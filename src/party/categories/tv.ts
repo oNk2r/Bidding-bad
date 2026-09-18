@@ -1,0 +1,62 @@
+import type { PartyCategory } from "../types.js";
+
+export const tvCategory: PartyCategory = {
+  id: "tv",
+  name: "TV Shows",
+  emoji: "📺",
+  description: "Legendary prestige drama, sitcom icons, and television royalty.",
+  scenarios: [
+    {
+      id: "run_illegal_empire",
+      title: "Build and Run a Secret Underground Empire",
+      description: "Pick 5 bosses, fixers, distributors, and enforcers to evade law enforcement.",
+      emoji: "🧪",
+    },
+    {
+      id: "office_prank_war",
+      title: "Win an All-Out Corporate Prank War",
+      description: "5 masterminds who can sabotage desks, stage fake firings, and drive HR crazy.",
+      emoji: "📎",
+    },
+    {
+      id: "game_of_thrones_iron_throne",
+      title: "Claim the Iron Throne and Rule the Realm",
+      description: "Navigate assassinations, wedding feasts, dragons, and royal court betrayal.",
+      emoji: "👑",
+    },
+    {
+      id: "murder_mystery",
+      title: "Solve the Crime of the Century in 24 Hours",
+      description: "Detectives, forensic geniuses, and eccentric interrogators.",
+      emoji: "🔍",
+    },
+    {
+      id: "reality_tv_house",
+      title: "Win the Most Dramatic Reality TV Show",
+      description: "5 personalities that will start fights, form alliances, and harvest social aura.",
+      emoji: "🍷",
+    },
+  ],
+  items: [
+    { id: "walter_white", name: "Walter White (Heisenberg)", category: "tv", tags: ["chemist", "mastermind", "ruthless", "danger", "albuquerque"] },
+    { id: "saul_goodman", name: "Saul Goodman", category: "tv", tags: ["lawyer", "con_artist", "fast_talker", "slippin_jimmy"] },
+    { id: "michael_scott", name: "Michael Scott", category: "tv", tags: ["boss", "cringe", "wholesome", "threat_level_midnight"] },
+    { id: "dwight_schrute", name: "Dwight Schrute", category: "tv", tags: ["beets", "assistant_regional_manager", "survivalist", "karate"] },
+    { id: "tyrion_lannister", name: "Tyrion Lannister", category: "tv", tags: ["wit", "wine", "strategist", "diplomat", "westeros"] },
+    { id: "daenerys_targaryen", name: "Daenerys Targaryen", category: "tv", tags: ["dragons", "queen", "fire", "ruler"] },
+    { id: "sherlock_holmes", name: "Sherlock Holmes (Cumberbatch)", category: "tv", tags: ["detective", "mind_palace", "genius", "sociopath"] },
+    { id: "tony_soprano", name: "Tony Soprano", category: "tv", tags: ["mob_boss", "new_jersey", "ruthless", "therapy"] },
+    { id: "thomas_shelby", name: "Thomas Shelby", category: "tv", tags: ["peaky_blinders", "smoke", "aura", "strategist", "birmingham"] },
+    { id: "gordon_ramsay", name: "Gordon Ramsay (Kitchen Nightmares)", category: "tv", tags: ["chef", "screamer", "raw_donkey", "perfectionist"] },
+    { id: "homer_simpson", name: "Homer Simpson", category: "tv", tags: ["donuts", "nuclear_technician", "lucky_idiot", "springfield"] },
+    { id: "peter_griffin", name: "Peter Griffin", category: "tv", tags: ["chaotic", "cutaway_gag", "unpredictable", "quahog"] },
+    { id: "rick_sanchez", name: "Rick Sanchez", category: "tv", tags: ["mad_scientist", "portal_gun", "nihilist", "multiverse"] },
+    { id: "ted_lasso", name: "Ted Lasso", category: "tv", tags: ["coach", "believe", "biscuits", "wholesome", "morale"] },
+    { id: "gus_fring", name: "Gustavo Fring", category: "tv", tags: ["los_pollos", "perfectionist", "cold", "box_cutter"] },
+    { id: "lucifer_morningstar", name: "Lucifer Morningstar", category: "tv", tags: ["devil", "charmer", "piano", "desire"] },
+    { id: "dexter_morgan", name: "Dexter Morgan", category: "tv", tags: ["blood_spatter", "code", "serial_killer", "miami"] },
+    { id: "harvey_specter", name: "Harvey Specter", category: "tv", tags: ["closer", "corporate_lawyer", "arrogant", "winner"] },
+    { id: "eleven_stranger_things", name: "Eleven (Stranger Things)", category: "tv", tags: ["telekinesis", "eggos", "hawkins", "supernatural"] },
+    { id: "logan_roy", name: "Logan Roy", category: "tv", tags: ["billionaire", "media_mogul", "ruthless", "waystar"] },
+  ],
+};

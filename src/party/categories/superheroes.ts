@@ -1,0 +1,62 @@
+import type { PartyCategory } from "../types.js";
+
+export const superheroesCategory: PartyCategory = {
+  id: "superheroes",
+  name: "Superheroes",
+  emoji: "🦸",
+  description: "Comic book titans, mutant outcasts, galactic protectors, and cosmic conquerors.",
+  scenarios: [
+    {
+      id: "thanos_snap_reversal",
+      title: "Stop Thanos from Snapping Half the Universe Away",
+      description: "Pick 5 heroes to blitz the Infinity Gauntlet, hold off alien hordes, and sacrifice for the win.",
+      emoji: "🧤",
+    },
+    {
+      id: "arkham_asylum_breakout",
+      title: "Restore Order During a Total Arkham Asylum Riot",
+      description: "Survive gas attacks, venom henchmen, psychotic mind-games, and dark corridors.",
+      emoji: "🦇",
+    },
+    {
+      id: "galactus_earth_defense",
+      title: "Defend Earth from Galactus the World Devourer",
+      description: "Cosmic level energy, scientific countermeasures, and planetary forcefields.",
+      emoji: "🪐",
+    },
+    {
+      id: "civil_war_clash",
+      title: "Win an Airport Hangar Superhero Civil War",
+      description: "Matchups, battlefield control, speedsters, and tactical superiority.",
+      emoji: "✈️",
+    },
+    {
+      id: "secret_invasion_skrulls",
+      title: "Detect and Neutralize Shapeshifting Skrulls in the White House",
+      description: "Telepaths, lie detectors, enhanced senses, and pinpoint interrogators.",
+      emoji: "👽",
+    },
+  ],
+  items: [
+    { id: "batman", name: "Batman (With Prep Time)", category: "superheroes", tags: ["prep_time", "billionaire", "detective", "martial_arts", "dc"] },
+    { id: "superman", name: "Superman", category: "superheroes", tags: ["kryptonian", "laser_eyes", "flight", "invulnerable", "boy_scout", "dc"] },
+    { id: "iron_man", name: "Iron Man (Tony Stark)", category: "superheroes", tags: ["nanotech", "billionaire", "genius", "repulsors", "marvel"] },
+    { id: "spider_man", name: "Spider-Man (Peter Parker)", category: "superheroes", tags: ["web_slinger", "spider_sense", "acrobat", "quips", "marvel"] },
+    { id: "wolverine", name: "Wolverine (Logan)", category: "superheroes", tags: ["adamantium", "healing_factor", "berserker", "claws", "xmen"] },
+    { id: "deadpool", name: "Deadpool", category: "superheroes", tags: ["fourth_wall", "katanas", "healing_factor", "unhinged", "marvel"] },
+    { id: "thor", name: "Thor Odinson", category: "superheroes", tags: ["god_of_thunder", "mjolnir", "asgard", "lightning", "marvel"] },
+    { id: "hulk", name: "The Incredible Hulk", category: "superheroes", tags: ["gamma_rage", "smash", "unlimited_strength", "green_beast"] },
+    { id: "wonder_woman", name: "Wonder Woman", category: "superheroes", tags: ["amazonian", "lasso_of_truth", "shield", "warrior", "dc"] },
+    { id: "the_flash", name: "The Flash (Barry Allen)", category: "superheroes", tags: ["speed_force", "time_travel", "lightning", "fastest_man", "dc"] },
+    { id: "thanos", name: "Thanos", category: "superheroes", tags: ["infinity_stones", "mad_titan", "inevitable", "conqueror", "marvel"] },
+    { id: "magneto", name: "Magneto", category: "superheroes", tags: ["magnetism", "mutant_superiority", "metal_control", "xmen"] },
+    { id: "doctor_strange", name: "Doctor Strange", category: "superheroes", tags: ["sorcerer_supreme", "mystic_arts", "time_stone", "portals", "marvel"] },
+    { id: "homelander", name: "Homelander", category: "superheroes", tags: ["narcissist", "milk", "laser_eyes", "unhinged_god", "the_boys"] },
+    { id: "black_panther", name: "Black Panther (T'Challa)", category: "superheroes", tags: ["vibranium", "wakanda_forever", "king", "agility", "marvel"] },
+    { id: "omni_man", name: "Omni-Man", category: "superheroes", tags: ["viltrumite", "mustache", "brutal", "train_scene", "invincible"] },
+    { id: "peacemaker", name: "Peacemaker", category: "superheroes", tags: ["peace_at_all_costs", "eagly", "guns", "hilarious", "dc"] },
+    { id: "scarlet_witch", name: "Scarlet Witch (Wanda Maximoff)", category: "superheroes", tags: ["chaos_magic", "reality_warper", "what_mouth", "marvel"] },
+    { id: "green_goblin", name: "Green Goblin (Norman Osborn)", category: "superheroes", tags: ["glider", "pumpkin_bombs", "scientist_myself", "spiderman_villain"] },
+    { id: "groot", name: "Groot", category: "superheroes", tags: ["i_am_groot", "wood_manipulation", "regenerate", "guardians"] },
+  ],
+};

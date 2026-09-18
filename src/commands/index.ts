@@ -48,10 +48,15 @@ import { tournamentCommand } from "./tournament/tournament.js";
 // Utility & Canvas
 import { helpCommand } from "./utility/help.js";
 
+// Party Auction
+import { partyCommand } from "./party/partyCommand.js";
+
 export function loadCommands(): Collection<string, Command> {
   const commands = new Collection<string, Command>();
 
   const all: Command[] = [
+    // Party Auction
+    partyCommand,
     // Live Auction
     auctionCommand,
     joinCommand,

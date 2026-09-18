@@ -40,7 +40,7 @@ export class ProfileService {
     const roles = managerRoleService.getRolesForUser(statsData);
     const rating = calculateManagerRating(wins, draws, losses, 88.0, matches);
 
-    return {
+    const profile: ManagerProfile = {
       displayName: user.name,
       userId: user.id,
       rank: user.rp > 0 ? `${user.rp} RP` : "—",
@@ -64,7 +64,20 @@ export class ProfileService {
       motto: user.motto,
       tournamentsWon: user.tournamentsWon || 0,
       rp: user.rp,
+      partyRecord: undefined,
     };
+
+    try {
+      const { partyStatsService } = await import("../party/services/partyStatsService.js");
+      const partyStats = await partyStatsService.getPartyStats(userId);
+      if (partyStats.partyGames > 0) {
+        profile.partyRecord = `${partyStats.partyWins}W - ${partyStats.partyLosses}L (${partyStats.partyGames} Games) • 👨‍🍳 ${partyStats.partyCookAwards} Cook • 🔥 ${partyStats.unlockedAchievements.length} Badges`;
+      }
+    } catch {
+      // Graceful fallback
+    }
+
+    return profile;
   }
 
   async setClubName(userId: string, clubName: string, userName?: string): Promise<string> {
