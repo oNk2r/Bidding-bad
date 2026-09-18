@@ -1,0 +1,62 @@
+import type { PartyCategory } from "../types.js";
+
+export const moviesCategory: PartyCategory = {
+  id: "movies",
+  name: "Movies",
+  emoji: "🎬",
+  description: "Hollywood blockbusters, legendary movie characters, heroes, and antiheroes.",
+  scenarios: [
+    {
+      id: "heist_night",
+      title: "Rob the World's Most Secure Bank Vault",
+      description: "Gather 5 specialists to breach lasers, hack security, crack the safe, and escape.",
+      emoji: "🏦",
+    },
+    {
+      id: "zombie_apocalypse",
+      title: "Survive a Zombie Apocalypse for 30 Days",
+      description: "Choose 5 companions who can scavenge food, build barricades, and fight off hordes.",
+      emoji: "🧟",
+    },
+    {
+      id: "alien_invasion",
+      title: "Repel an Extraterrestrial Invasion",
+      description: "5 badasses with heavy artillery, cosmic IQ, or brute force to save humanity.",
+      emoji: "👽",
+    },
+    {
+      id: "action_courtroom",
+      title: "Win an Impossible Courtroom Drama Case",
+      description: "5 personalities who will manipulate the jury, intimidate the judge, or find the missing clue.",
+      emoji: "⚖️",
+    },
+    {
+      id: "desert_island",
+      title: "Escape a Cannibal-Infested Desert Island",
+      description: "Survival instincts, raft engineering, and who definitely won't get eaten first.",
+      emoji: "🏝️",
+    },
+  ],
+  items: [
+    { id: "john_wick", name: "John Wick", category: "movies", tags: ["assassin", "gun_fu", "dog_lover", "lethal", "revenge"] },
+    { id: "jack_sparrow", name: "Captain Jack Sparrow", category: "movies", tags: ["pirate", "lucky", "chaotic", "rum", "trickster"] },
+    { id: "terminator", name: "The Terminator (T-800)", category: "movies", tags: ["cyborg", "machine", "unstoppable", "heavy_weapons"] },
+    { id: "indiana_jones", name: "Indiana Jones", category: "movies", tags: ["archaeologist", "whip", "explorer", "smart", "clutch"] },
+    { id: "darth_vader", name: "Darth Vader", category: "movies", tags: ["villain", "force", "lightsaber", "aura", "empire"] },
+    { id: "joker_ledger", name: "The Joker (Heath Ledger)", category: "movies", tags: ["chaotic", "anarchy", "mastermind", "psychopath"] },
+    { id: "neo", name: "Neo (The Matrix)", category: "movies", tags: ["the_one", "hacker", "kung_fu", "bullet_time"] },
+    { id: "ethan_hunt", name: "Ethan Hunt", category: "movies", tags: ["spy", "stunts", "infiltrator", "tech", "gadgets"] },
+    { id: "shrek", name: "Shrek", category: "movies", tags: ["ogre", "swamp", "brute", "meme", "wholesome"] },
+    { id: "hannibal_lecter", name: "Hannibal Lecter", category: "movies", tags: ["psychopath", "genius", "cannibal", "refined"] },
+    { id: "ellen_ripley", name: "Ellen Ripley", category: "movies", tags: ["survivor", "alien_hunter", "badass", "flamethrower"] },
+    { id: "dom_toretto", name: "Dom Toretto", category: "movies", tags: ["family", "driver", "gravity_defying", "muscle_car"] },
+    { id: "forrest_gump", name: "Forrest Gump", category: "movies", tags: ["luck_100", "runner", "ping_pong", "wholesome"] },
+    { id: "tyler_durden", name: "Tyler Durden", category: "movies", tags: ["soap", "rebel", "chaotic", "insomniac", "cult_leader"] },
+    { id: "legolas", name: "Legolas", category: "movies", tags: ["elf", "archer", "acrobatic", "sniper", "middle_earth"] },
+    { id: "gandalf", name: "Gandalf the Grey", category: "movies", tags: ["wizard", "magic", "wise", "shall_not_pass"] },
+    { id: "morpheus", name: "Morpheus", category: "movies", tags: ["mentor", "red_pill", "kung_fu", "philosophical"] },
+    { id: "pennywise", name: "Pennywise the Clown", category: "movies", tags: ["monster", "horror", "balloons", "fear"] },
+    { id: "tony_montana", name: "Tony Montana", category: "movies", tags: ["gangster", "guns", "chaotic", "miami"] },
+    { id: "willy_wonka", name: "Willy Wonka", category: "movies", tags: ["candy", "eccentric", "billionaire", "unhinged"] },
+  ],
+};

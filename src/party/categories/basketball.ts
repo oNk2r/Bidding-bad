@@ -1,0 +1,62 @@
+import type { PartyCategory } from "../types.js";
+
+export const basketballCategory: PartyCategory = {
+  id: "basketball",
+  name: "Basketball",
+  emoji: "🏀",
+  description: "NBA royalty, clutch bucket-getters, defensive stoppers, and rim wreckers.",
+  scenarios: [
+    {
+      id: "win_game_7_finals",
+      title: "Win Game 7 of the NBA Finals (Down 2 with 8.4 Seconds)",
+      description: "Pick 5 clutch players to inbound the ball, create space, and hit the buzzer beater.",
+      emoji: "🏆",
+    },
+    {
+      id: "rucker_park_streetball",
+      title: "Survive and Win at Rucker Park Streetball",
+      description: "Handles, disrespect, crossover ankle-breakers, and crowd energy.",
+      emoji: "🗽",
+    },
+    {
+      id: "90s_bad_boys_pistons",
+      title: "Survive a Physical Playoff Series with the '89 Bad Boys Pistons",
+      description: "Physical toughness, mental fortitude, and elbows in the paint.",
+      emoji: "🥊",
+    },
+    {
+      id: "all_star_dunk_showcase",
+      title: "Put on the Most Electrifying All-Star Dunk Contest",
+      description: "Vertical leap, style points, gravity-defying windmills, and 50-point scores.",
+      emoji: "🔥",
+    },
+    {
+      id: "space_jam_monstars",
+      title: "Beat the Monstars in a High-Stakes Intergalactic Game",
+      description: "Cartoon physics, clutch shots, and saving the planet with pure hoops.",
+      emoji: "🪐",
+    },
+  ],
+  items: [
+    { id: "michael_jordan", name: "Michael Jordan", category: "basketball", tags: ["goat", "air_jordan", "killer_instinct", "clutch", "chicago_bulls"] },
+    { id: "lebron_james", name: "LeBron James", category: "basketball", tags: ["king", "longevity", "all_around", "iq", "chasedown"] },
+    { id: "kobe_bryant", name: "Kobe Bryant", category: "basketball", tags: ["mamba_mentality", "tough_shots", "relentless", "lakers"] },
+    { id: "stephen_curry", name: "Stephen Curry", category: "basketball", tags: ["chef", "deep_threes", "gravity", "night_night", "warriors"] },
+    { id: "shaquille_oneal", name: "Shaquille O'Neal", category: "basketball", tags: ["diesel", "most_dominant", "broken_backboards", "paint_beast"] },
+    { id: "dennis_rodman", name: "Dennis Rodman", category: "basketball", tags: ["worm", "rebounding", "hair_dye", "enforcer", "defense"] },
+    { id: "nikola_jokic", name: "Nikola Jokic (The Joker)", category: "basketball", tags: ["horses", "triple_double", "passer", "sombor_shuffle"] },
+    { id: "giannis_antetokounmpo", name: "Giannis Antetokounmpo (Greek Freak)", category: "basketball", tags: ["dunks", "eurostep", "monster", "milwaukee"] },
+    { id: "kevin_durant", name: "Kevin Durant (Slim Reaper)", category: "basketball", tags: ["seven_foot_sniper", "bucket_getter", "pure_hooper"] },
+    { id: "allen_iverson", name: "Allen Iverson (The Answer)", category: "basketball", tags: ["crossover", "stepover", "practice", "culture"] },
+    { id: "magic_johnson", name: "Magic Johnson", category: "basketball", tags: ["showtime", "no_look_pass", "smile", "point_god"] },
+    { id: "larry_bird", name: "Larry Bird", category: "basketball", tags: ["trash_talker", "boston", "sniper", "legend"] },
+    { id: "victor_wembanyama", name: "Victor Wembanyama", category: "basketball", tags: ["alien", "8ft_wingspan", "future", "block_machine"] },
+    { id: "draymond_green", name: "Draymond Green", category: "basketball", tags: ["enforcer", "podcaster", "screamer", "defense", "chaotic"] },
+    { id: "russell_westbrook", name: "Russell Westbrook", category: "basketball", tags: ["brodie", "triple_double", "100mph", "high_motor"] },
+    { id: "luka_doncic", name: "Luka Doncic", category: "basketball", tags: ["luka_magic", "stepback", "trash_talk", "clutch", "slovenia"] },
+    { id: "vince_carter", name: "Vince Carter (Vinsanity)", category: "basketball", tags: ["dunk_contest_50", "over_7footer", "flight"] },
+    { id: "tim_duncan", name: "Tim Duncan (Big Fundamental)", category: "basketball", tags: ["bank_shot", "fundamental", "boring_greatness", "spurs"] },
+    { id: "kyrie_irving", name: "Kyrie Irving", category: "basketball", tags: ["best_handles", "clutch_three", "wizard", "layup_package"] },
+    { id: "hakeem_olajuwon", name: "Hakeem Olajuwon (The Dream)", category: "basketball", tags: ["dream_shake", "footwork", "shotblocker", "rockets"] },
+  ],
+};

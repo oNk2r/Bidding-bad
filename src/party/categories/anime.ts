@@ -1,0 +1,62 @@
+import type { PartyCategory } from "../types.js";
+
+export const animeCategory: PartyCategory = {
+  id: "anime",
+  name: "Anime",
+  emoji: "🧙",
+  description: "Shonen legends, world-shaking powers, ninja masters, and overpowered protagonists.",
+  scenarios: [
+    {
+      id: "tournament_of_power",
+      title: "Survive the Multiverse Tournament of Power (No Killing Rule)",
+      description: "Pick 5 fighters with ring-out defense, stamina recovery, and transformations.",
+      emoji: "🌌",
+    },
+    {
+      id: "rumbling_attack_on_titan",
+      title: "Stop the Colossal Wall Titan Rumbling",
+      description: "ODM gear, thunder spears, tactical airstrikes, and anti-titan power.",
+      emoji: "👣",
+    },
+    {
+      id: "marineford_war",
+      title: "Rescue Ace from the Scaffold at Marineford",
+      description: "Conqueror's Haki, Devil Fruit awakenings, Admirals clash, and daring escapes.",
+      emoji: "⚓",
+    },
+    {
+      id: "chunim_exam_forest_of_death",
+      title: "Pass the Chunin Exam Forest of Death with Both Scrolls",
+      description: "Stealth, genjutsu counters, trap mastery, and surviving cursed seals.",
+      emoji: "📜",
+    },
+    {
+      id: "shibuya_incident",
+      title: "Contain the Cursed Spirit Shibuya Disaster",
+      description: "Domain expansions, reverse cursed techniques, and keeping civilians alive.",
+      emoji: "🤞",
+    },
+  ],
+  items: [
+    { id: "goku", name: "Son Goku", category: "anime", tags: ["saiyan", "kamehameha", "ultra_instinct", "screaming_buff", "dragon_ball"] },
+    { id: "naruto_uzumaki", name: "Naruto Uzumaki", category: "anime", tags: ["nine_tails", "shadow_clones", "rasengan", "talk_no_jutsu"] },
+    { id: "monkey_d_luffy", name: "Monkey D. Luffy", category: "anime", tags: ["gear_5", "rubber", "meat_lover", "sun_god_nika", "one_piece"] },
+    { id: "satoru_gojo", name: "Satoru Gojo", category: "anime", tags: ["six_eyes", "infinity", "hollow_purple", "honored_one", "jjk"] },
+    { id: "saitama", name: "Saitama (One Punch Man)", category: "anime", tags: ["one_punch", "serious_series", "bald_cape", "grocery_sales"] },
+    { id: "vegeta", name: "Vegeta", category: "anime", tags: ["saiyan_prince", "pride", "final_flash", "ultra_ego", "dragon_ball"] },
+    { id: "sasuke_uchiha", name: "Sasuke Uchiha", category: "anime", tags: ["sharingan", "rinnegan", "chidori", "avenger", "naruto"] },
+    { id: "roronoa_zoro", name: "Roronoa Zoro", category: "anime", tags: ["three_swords", "got_lost", "nothing_happened", "haki", "one_piece"] },
+    { id: "levi_ackerman", name: "Levi Ackerman", category: "anime", tags: ["humanity_strongest", "spin_blades", "clean_freak", "aot"] },
+    { id: "light_yagami", name: "Light Yagami (Kira)", category: "anime", tags: ["death_note", "potato_chip", "god_of_new_world", "genius"] },
+    { id: "ryomen_sukuna", name: "Ryomen Sukuna", category: "anime", tags: ["king_of_curses", "malevolent_shrine", "dismantle", "fingers"] },
+    { id: "eren_yeager", name: "Eren Yeager", category: "anime", tags: ["tatakae", "founding_titan", "freedom", "rumbling", "aot"] },
+    { id: "ichigo_kurosaki", name: "Ichigo Kurosaki", category: "anime", tags: ["soul_reaper", "getsuga_tensho", "bankai", "hollow_mask", "bleach"] },
+    { id: "edward_elric", name: "Edward Elric", category: "anime", tags: ["fullmetal_alchemist", "transmutation", "short_rage", "automail"] },
+    { id: "tanjiro_kamado", name: "Tanjiro Kamado", category: "anime", tags: ["sun_breathing", "demon_slayer", "hard_head", "wholesome"] },
+    { id: "killua_zoldyck", name: "Killua Zoldyck", category: "anime", tags: ["godspeed", "lightning", "assassin", "yoyo", "hxh"] },
+    { id: "madara_uchiha", name: "Madara Uchiha", category: "anime", tags: ["wake_up_to_reality", "susanoo", "two_meteors", "legendary_ninja"] },
+    { id: "jotaro_kujo", name: "Jotaro Kujo", category: "anime", tags: ["star_platinum", "ora_ora", "stop_time", "yare_yare_daze", "jojo"] },
+    { id: "alucard", name: "Alucard (Hellsing)", category: "anime", tags: ["vampire_king", "guns", "millions_of_souls", "immortal"] },
+    { id: "anya_forger", name: "Anya Forger", category: "anime", tags: ["peanuts", "mind_reader", "heh_face", "starlight_anya", "meme"] },
+  ],
+};

@@ -61,10 +61,26 @@ export const helpCommand: Command = {
             "`/leaderboard` — Server manager rankings\n" +
             "`/profile` — Manager stats & card valuation",
           inline: false,
+        },
+        {
+          name: "🎉 Party Auction (New Multiplayer Mode)",
+          value:
+            "`/party create` — Create a party lobby & select category / scenario\n" +
+            "`/party join` — Join the lobby (3-6 players, 50 virtual BB purse)\n" +
+            "`/party start` — Host starts the party auction\n" +
+            "`/party bid <amount>` — Bid on current item on the block\n" +
+            "`/party pass` — Pass on current item\n" +
+            "`/party squad` — Ephemeral view of your 5-item squad & purse\n" +
+            "`/party vote <player>` — Vote for Who Cooked during community voting\n" +
+            "`/party results` — View game awards, funny roasts & party stats\n" +
+            "`/party rematch` — Run it back with the same players\n" +
+            "`/party cancel` — Cancel active party auction",
+          inline: false,
         }
       )
       .setFooter({ text: "Use any slash command with / to begin!" });
 
-    await interaction.reply({ embeds: [embed] });
+    await interaction.deferReply();
+    await interaction.editReply({ embeds: [embed] });
   },
 };

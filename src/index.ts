@@ -36,13 +36,22 @@ function startHealthServer(): http.Server {
 async function bootstrap(): Promise<void> {
   console.log("⚽ Starting Bidding Bad Discord Bot (TypeScript 5.7+ / discord.js 14+)...");
 
-  // Verify database connectivity
-  try {
-    await prisma.$connect();
-    console.log("✅ Database connection established.");
-  } catch (err) {
-    console.error("❌ Failed to connect to database:", err);
-    process.exit(1);
+  // Verify database connectivity (with auto-retry for Neon serverless cold start)
+  const maxRetries = 4;
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      await prisma.$connect();
+      console.log("✅ Database connection established.");
+      break;
+    } catch (err) {
+      if (attempt < maxRetries) {
+        console.warn(`⏳ Neon serverless database waking up (attempt ${attempt}/${maxRetries})... retrying in 3s`);
+        await new Promise((r) => setTimeout(r, 3000));
+      } else {
+        console.error("❌ Failed to connect to database after retries:", err);
+        process.exit(1);
+      }
+    }
   }
 
   const client = new Client({

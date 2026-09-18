@@ -1,0 +1,62 @@
+import type { PartyCategory } from "../types.js";
+
+export const footballCategory: PartyCategory = {
+  id: "football",
+  name: "Football",
+  emoji: "⚽",
+  description: "World football superstars, legendary icons, and footballing chaos.",
+  scenarios: [
+    {
+      id: "champions_league_final",
+      title: "Win the Champions League Final (90th Minute Down 0-1)",
+      description: "Pick 5 players who will mount the most miraculous stoppage-time comeback.",
+      emoji: "🏆",
+    },
+    {
+      id: "survive_stokes_tuesday",
+      title: "Survive a Cold Rainy Tuesday in Stoke",
+      description: "Assemble 5 warriors tough enough to endure physical warfare in the English winter.",
+      emoji: "🌧️",
+    },
+    {
+      id: "nightclub_brawl",
+      title: "Escort the Team Safely Out of an Ibiza Nightclub",
+      description: "Who can talk their way out, bribe the bouncers, or survive the paparazzi flash?",
+      emoji: "🍾",
+    },
+    {
+      id: "pure_shithousery",
+      title: "Create the Ultimate Shithouse XI",
+      description: "5 masters of dark arts, ref-swarming, time-wasting, and tactical fouls.",
+      emoji: "🐍",
+    },
+    {
+      id: "fifa_street",
+      title: "Win an Underground FIFA Street Tournament",
+      description: "5 flair artists with unlimited skill moves and zero defensive responsibility.",
+      emoji: "🔥",
+    },
+  ],
+  items: [
+    { id: "messi", name: "Lionel Messi", category: "football", tags: ["goat", "attacker", "dribbler", "argentina", "barcelona"] },
+    { id: "ronaldo", name: "Cristiano Ronaldo", category: "football", tags: ["goat", "attacker", "clutch", "aura", "portugal", "real_madrid"] },
+    { id: "neymar", name: "Neymar Jr", category: "football", tags: ["flair", "attacker", "party_animal", "brazil", "skiller"] },
+    { id: "pepe", name: "Pepe", category: "football", tags: ["defender", "enforcer", "shithouse", "warrior", "portugal"] },
+    { id: "suarez", name: "Luis Suarez", category: "football", tags: ["attacker", "bite", "shithouse", "clutch", "uruguay"] },
+    { id: "ramos", name: "Sergio Ramos", category: "football", tags: ["defender", "red_card", "clutch", "leader", "spain"] },
+    { id: "maguire", name: "Harry Maguire", category: "football", tags: ["defender", "meme", "aerial_threat", "england"] },
+    { id: "haaland", name: "Erling Haaland", category: "football", tags: ["attacker", "cyborg", "physique", "norway"] },
+    { id: "mbappe", name: "Kylian Mbappe", category: "football", tags: ["attacker", "speed", "clutch", "france"] },
+    { id: "kante", name: "N'Golo Kante", category: "football", tags: ["midfielder", "humble", "lungs", "workhorse", "france"] },
+    { id: "zlatan", name: "Zlatan Ibrahimovic", category: "football", tags: ["attacker", "god", "martial_arts", "taekwondo", "sweden"] },
+    { id: "balotelli", name: "Mario Balotelli", category: "football", tags: ["attacker", "fireworks", "chaotic", "why_always_me"] },
+    { id: "maradona", name: "Diego Maradona", category: "football", tags: ["legend", "hand_of_god", "dribbler", "chaotic", "argentina"] },
+    { id: "zidane", name: "Zinedine Zidane", category: "football", tags: ["midfielder", "maestro", "headbutt", "france"] },
+    { id: "antony", name: "Antony", category: "football", tags: ["skiller", "spin", "meme", "brazil", "aura"] },
+    { id: "muller", name: "Thomas Müller", category: "football", tags: ["midfielder", "space_invader", "joker", "germany"] },
+    { id: "de_bruyne", name: "Kevin De Bruyne", category: "football", tags: ["midfielder", "passer", "vision", "belgium"] },
+    { id: "garrincha", name: "Garrincha", category: "football", tags: ["legend", "dribbler", "unpredictable", "brazil"] },
+    { id: "vidal", name: "Arturo Vidal", category: "football", tags: ["midfielder", "warrior", "tattoos", "chile"] },
+    { id: "roy_keane", name: "Roy Keane", category: "football", tags: ["midfielder", "captain", "enforcer", "ireland", "angry"] },
+  ],
+};

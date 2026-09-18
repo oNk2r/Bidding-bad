@@ -1,0 +1,62 @@
+import type { PartyCategory } from "../types.js";
+
+export const gamesCategory: PartyCategory = {
+  id: "games",
+  name: "Games",
+  emoji: "🎮",
+  description: "Video game legends, stealth assassins, god slayers, and nostalgic heroes.",
+  scenarios: [
+    {
+      id: "raid_boss_mythic",
+      title: "Defeat a 20-Player Mythic Raid Boss with Only 5",
+      description: "Pick 5 gamers or protagonists to tank, heal, burst DPS, and avoid ground fire.",
+      emoji: "🐉",
+    },
+    {
+      id: "battle_royale_hot_drop",
+      title: "Win an 100-Player Battle Royale Hot Drop",
+      description: "Fast looting, twitch aim, third-party survival, and rotational IQ.",
+      emoji: "🪂",
+    },
+    {
+      id: "stealth_facility_infiltration",
+      title: "Infiltrate a Heavily Guarded Military Cyber-Fortress Undetected",
+      description: "Cardboard boxes, stealth takedowns, hacking terminals, and silence.",
+      emoji: "📦",
+    },
+    {
+      id: "dark_souls_gauntlet",
+      title: "Clear Dark Souls Without Taking a Single Hit",
+      description: "Roll timing, patience, parrying, and unflinching mental resilience.",
+      emoji: "🗡️",
+    },
+    {
+      id: "mario_kart_rainbow_road",
+      title: "Win 150cc Mario Kart on Rainbow Road (Blue Shells On)",
+      description: "Drifting shortcuts, item management, revenge shells, and zero friendships left.",
+      emoji: "🍌",
+    },
+  ],
+  items: [
+    { id: "kratos", name: "Kratos", category: "games", tags: ["god_of_war", "blades_of_chaos", "rage", "god_slayer", "spartan"] },
+    { id: "master_chief", name: "Master Chief (John-117)", category: "games", tags: ["spartan", "luck", "covenant_slayer", "shield", "halo"] },
+    { id: "mario", name: "Mario", category: "games", tags: ["plumber", "mushrooms", "jumping", "fireball", "nintendo"] },
+    { id: "geralt_of_rivia", name: "Geralt of Rivia (The Witcher)", category: "games", tags: ["mutant", "monster_hunter", "gwent", "signs", "swords"] },
+    { id: "solid_snake", name: "Solid Snake", category: "games", tags: ["stealth", "cardboard_box", "cqc", "tactical_espionage"] },
+    { id: "arthur_morgan", name: "Arthur Morgan", category: "games", tags: ["cowboy", "deadeye", "revolver", "redemption", "outlaw"] },
+    { id: "doom_slayer", name: "Doom Slayer", category: "games", tags: ["rip_and_tear", "bfg", "demon_bane", "heavy_metal", "unstoppable"] },
+    { id: "lara_croft", name: "Lara Croft", category: "games", tags: ["tomb_raider", "dual_pistols", "acrobatics", "relic_hunter"] },
+    { id: "sonic_hedgehog", name: "Sonic the Hedgehog", category: "games", tags: ["speed", "chili_dogs", "spindash", "rings", "sega"] },
+    { id: "steve_minecraft", name: "Steve (Minecraft)", category: "games", tags: ["diamond_sword", "infinite_inventory", "builder", "redstone"] },
+    { id: "sephiroth", name: "Sephiroth", category: "games", tags: ["one_winged_angel", "masamune", "meteor", "villain", "final_fantasy"] },
+    { id: "link_zelda", name: "Link (Hero of Time)", category: "games", tags: ["master_sword", "triforce", "hylian_shield", "silent_protagonist"] },
+    { id: "sans_undertale", name: "Sans", category: "games", tags: ["bad_time", "gaster_blaster", "dodger", "lazy_skeleton"] },
+    { id: "agent_47", name: "Agent 47 (Hitman)", category: "games", tags: ["barcode", "disguises", "fiber_wire", "silent_assassin"] },
+    { id: "crash_bandicoot", name: "Crash Bandicoot", category: "games", tags: ["spin", "wumpa_fruit", "aku_aku", "chaotic"] },
+    { id: "ellie_tlou", name: "Ellie (The Last of Us)", category: "games", tags: ["immune", "switchblade", "survivor", "grit"] },
+    { id: "trevor_philips", name: "Trevor Philips (GTA V)", category: "games", tags: ["psychopath", "rage_mode", "chaotic_evil", "explosives"] },
+    { id: "donkey_kong", name: "Donkey Kong", category: "games", tags: ["bananas", "ground_pound", "barrel_throw", "raw_power"] },
+    { id: "ezio_auditore", name: "Ezio Auditore da Firenze", category: "games", tags: ["hidden_blade", "leap_of_faith", "parkour", "charmer"] },
+    { id: "kirby", name: "Kirby", category: "games", tags: ["swallow_gods", "pink_blob", "eldritch_horror", "wholesome"] },
+  ],
+};

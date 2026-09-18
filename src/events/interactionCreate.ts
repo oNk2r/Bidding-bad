@@ -45,6 +45,7 @@ import { createSeasonPassEmbed } from "../ui/embeds/seasonEmbeds.js";
 import { TACTICS_CATALOG, getTacticInfo } from "../models/tactics.js";
 import type { StrikerDirection, KeeperDirection } from "../models/penalty.js";
 import { prisma } from "../database/client.js";
+import { handlePartyButton, handlePartySelectMenu } from "../party/handlers/partyInteractions.js";
 
 export async function onInteractionCreate(interaction: Interaction): Promise<void> {
   // 1. Slash Command Routing
@@ -57,7 +58,13 @@ export async function onInteractionCreate(interaction: Interaction): Promise<voi
 
     try {
       await command.execute(interaction);
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.code === 10062 || error?.code === 40060) {
+        console.warn(
+          `⚠️ Interaction ${interaction.id} for /${interaction.commandName} was already handled or expired (Discord API ${error.code}). Check if another instance (e.g. Render/Cloud) is running with the same bot token.`
+        );
+        return;
+      }
       console.error(`Error executing ${interaction.commandName}:`, error);
       const msg = "❌ There was an error while executing this command!";
       try {
@@ -91,6 +98,11 @@ export async function onInteractionCreate(interaction: Interaction): Promise<voi
     try {
       const customId = interaction.customId;
       const guildId = interaction.guildId;
+
+      if (customId.startsWith("party_")) {
+        const handled = await handlePartyButton(interaction);
+        if (handled) return;
+      }
 
     // Auction Lobby Buttons
     if (customId === "auction_lobby_join" && guildId) {
@@ -956,6 +968,11 @@ export async function onInteractionCreate(interaction: Interaction): Promise<voi
 
   // 4. String Select Menu Interactions
   if (interaction.isStringSelectMenu()) {
+    if (interaction.customId.startsWith("party_")) {
+      const handled = await handlePartySelectMenu(interaction);
+      if (handled) return;
+    }
+
     if (interaction.customId === "market_buy_select") {
       const listingId = interaction.values[0];
       await interaction.deferReply({ flags: MessageFlags.Ephemeral });

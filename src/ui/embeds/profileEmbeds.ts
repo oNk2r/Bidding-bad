@@ -54,7 +54,15 @@ export function createManagerProfileEmbed(profile: ManagerProfile, avatarUrl?: s
     }
   );
 
-  embed.setFooter({ text: "Compete in /match, /tournament, and /auction to build your managerial legacy" });
+  if (profile.partyRecord) {
+    embed.addFields({
+      name: "🎉 Party Auction Record",
+      value: `> • **Career:** \`${profile.partyRecord}\``,
+      inline: false,
+    });
+  }
+
+  embed.setFooter({ text: "Compete in /match, /tournament, and /party to build your legacy" });
   return embed;
 }
 

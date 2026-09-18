@@ -1,0 +1,62 @@
+import type { PartyCategory } from "../types.js";
+
+export const musicCategory: PartyCategory = {
+  id: "music",
+  name: "Music",
+  emoji: "🎤",
+  description: "Rock legends, rap titans, pop royalty, and musical trailblazers.",
+  scenarios: [
+    {
+      id: "super_bowl_halftime",
+      title: "Put on the Greatest Super Bowl Halftime Show Ever",
+      description: "Pick 5 performers to shock 100 million viewers with pyrotechnics, choreography, and anthems.",
+      emoji: "🏟️",
+    },
+    {
+      id: "rap_battle_rap_god",
+      title: "Win the 8 Mile Rap Battle Championship",
+      description: "Flow, multisyllabic rhymes, crowd control, and soul-crushing disses.",
+      emoji: "🎙️",
+    },
+    {
+      id: "woodstock_music_festival",
+      title: "Headline Woodstock and Hypnotize 500,000 People",
+      description: "Guitar solos, pure vocal power, emotional resonance, and timeless energy.",
+      emoji: "🎸",
+    },
+    {
+      id: "eurovision_chaos",
+      title: "Win Eurovision with the Most Outrageous Act",
+      description: "Costumes, wind machines, crazy instruments, and unadulterated camp aura.",
+      emoji: "✨",
+    },
+    {
+      id: "world_peace_concert",
+      title: "Stop Global War with a Single 15-Minute Global Broadcast Song",
+      description: "Harmony, tear-jerking melodies, unifying charisma, and legendary stage presence.",
+      emoji: "🕊️",
+    },
+  ],
+  items: [
+    { id: "freddie_mercury", name: "Freddie Mercury", category: "music", tags: ["vocal_range", "queen", "live_aid", "showman", "rock_legend"] },
+    { id: "michael_jackson", name: "Michael Jackson", category: "music", tags: ["king_of_pop", "moonwalk", "thriller", "dance_god"] },
+    { id: "eminem", name: "Eminem (Slim Shady)", category: "music", tags: ["rap_god", "fast_flow", "shady", "detroit", "wordsmith"] },
+    { id: "kanye_west", name: "Kanye West (Ye)", category: "music", tags: ["producer_genius", "chaotic", "visionary", "ego", "sampling"] },
+    { id: "tupac_shakur", name: "Tupac Shakur (2Pac)", category: "music", tags: ["poet", "west_coast", "aura", "rebel", "rap_icon"] },
+    { id: "beyonce", name: "Beyoncé", category: "music", tags: ["queen_bey", "vocalist", "choreo", "grammy_record", "performer"] },
+    { id: "drake", name: "Drake", category: "music", tags: ["hitmaker", "certified_lover_boy", "r_and_b", "toronto", "meme"] },
+    { id: "taylor_swift", name: "Taylor Swift", category: "music", tags: ["eras_tour", "swifties", "songwriter", "pop_queen", "economy_shaker"] },
+    { id: "elvis_presley", name: "Elvis Presley", category: "music", tags: ["king_of_rock", "hips", "graceland", "vintage_aura"] },
+    { id: "kurt_cobain", name: "Kurt Cobain", category: "music", tags: ["grunge", "nirvana", "raw_emotion", "guitar_smash"] },
+    { id: "kendrick_lamar", name: "Kendrick Lamar", category: "music", tags: ["pulitzer_prize", "compton", "storyteller", "not_like_us", "lyricist"] },
+    { id: "bob_marley", name: "Bob Marley", category: "music", tags: ["reggae", "one_love", "peace", "jamaica", "guitar"] },
+    { id: "rihanna", name: "Rihanna", category: "music", tags: ["bad_gal_riri", "fenty", "umbrella", "swagger", "barbados"] },
+    { id: "the_weeknd", name: "The Weeknd (Abel Tesfaye)", category: "music", tags: ["synth_pop", "blinding_lights", "dark_r_and_b", "super_bowl"] },
+    { id: "elton_john", name: "Sir Elton John", category: "music", tags: ["piano_man", "rocket_man", "glasses", "extravagant"] },
+    { id: "snoop_dogg", name: "Snoop Dogg", category: "music", tags: ["west_coast", "coolest_uncle", "olympics_torch", "laid_back"] },
+    { id: "adele", name: "Adele", category: "music", tags: ["powerhouse_vocals", "ballads", "heartbreak", "london"] },
+    { id: "prince", name: "Prince", category: "music", tags: ["purple_rain", "multi_instrumentalist", "style_icon", "guitar_solo"] },
+    { id: "daft_punk", name: "Daft Punk", category: "music", tags: ["helmets", "electronic", "around_the_world", "french_house"] },
+    { id: "rick_astley", name: "Rick Astley", category: "music", tags: ["never_gonna_give_you_up", "rickroll", "meme_lord", "baritone"] },
+  ],
+};
